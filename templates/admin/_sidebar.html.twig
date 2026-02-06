@@ -1,0 +1,21 @@
+<div class="sidebar-brand mb-4">
+	<h4 class="fw-bold mb-1">MedTime</h4>
+	<small class="text-muted">Admin Panel</small>
+</div>
+
+<div class="mb-3 text-uppercase text-muted small fw-bold">Menu</div>
+<a class="sidebar-link" href="{{ path('app_admin_dashboard') }}"><i class="fas fa-th-large me-2"></i>Overview</a>
+<a class="sidebar-link" href="{{ path('app_admin_users') }}"><i class="fas fa-users me-2"></i>Users Management</a>
+<a class="sidebar-link" href="{{ path('app_admin_appointments') }}"><i class="fas fa-calendar-check me-2"></i>Appointments</a>
+<a class="sidebar-link" href="{{ path('app_admin_doctor_verifications') }}"><i class="fas fa-shield-alt me-2"></i>Verifications</a>
+
+<div class="mt-4 mb-3 text-uppercase text-muted small fw-bold">Settings</div>
+<a class="sidebar-link" href="{{ path('app_admin_settings') }}"><i class="fas fa-cog me-2"></i>System Settings</a>
+
+<div class="mt-4 p-3 bg-light rounded-3 border">
+	<div class="small text-muted mb-2">Logged in as</div>
+	<div class="fw-bold">{{ app.user ? app.user.username : 'Admin' }}</div>
+	<a class="btn btn-sm btn-outline-danger w-100 mt-3" href="{{ path('app_logout') }}">
+		<i class="fas fa-sign-out-alt me-1"></i>Logout
+	</a>
+</div>

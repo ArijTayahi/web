@@ -1,0 +1,150 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}User Management - MedTime Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+    <h1 class="h2 fw-bold text-dark">User Management</h1>
+</div>
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger">{{ message }}</div>
+{% endfor %}
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endfor %}
+
+<form class="card border-0 shadow-sm rounded-4 mb-4" method="get" action="{{ path('app_admin_users') }}">
+    <div class="card-body p-3">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ search }}" class="form-control border-start-0 rounded-end-pill ps-0" placeholder="Search by username or email">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select rounded-pill" name="role">
+                    <option value="">All Roles</option>
+                    <option value="physician" {% if role == 'physician' %}selected{% endif %}>Physicians</option>
+                    <option value="patient" {% if role == 'patient' %}selected{% endif %}>Patients</option>
+                    <option value="admin" {% if role == 'admin' %}selected{% endif %}>Admins</option>
+                    <option value="super_admin" {% if role == 'super_admin' %}selected{% endif %}>Super Admins</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select rounded-pill" name="status">
+                    <option value="">All Statuses</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    <option value="pending_verification" {% if status == 'pending_verification' %}selected{% endif %}>Doctor Pending</option>
+                    <option value="certified" {% if status == 'certified' %}selected{% endif %}>Doctor Certified</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100 rounded-pill" type="submit">Search</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3 border-0">User</th>
+                    <th class="py-3 border-0">Role</th>
+                    <th class="py-3 border-0">Status</th>
+                    <th class="py-3 border-0">Joined</th>
+                    <th class="pe-4 py-3 border-0 text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    {% set roles = user.roles %}
+                    {% set roleLabel = 'Patient' %}
+                    {% if 'ROLE_SUPER_ADMIN' in roles %}
+                        {% set roleLabel = 'Super Admin' %}
+                    {% elseif 'ROLE_ADMIN' in roles %}
+                        {% set roleLabel = 'Admin' %}
+                    {% elseif 'ROLE_PHYSICIAN' in roles %}
+                        {% set roleLabel = 'Physician' %}
+                    {% endif %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar rounded-circle bg-light text-secondary me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    {{ user.username|slice(0, 1)|upper }}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ user.username }}</h6>
+                                    <small class="text-muted">{{ user.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark border">{{ roleLabel }}</span></td>
+                        <td>
+                            {% if user.isActive %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                            {% if user.doctor %}
+                                {% if user.doctor.isCertified %}
+                                    <span class="badge bg-info text-dark ms-1">Certified</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark ms-1">Pending</span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ user.createdAt|date('Y-m-d H:i') }}</td>
+                        <td class="pe-4 text-end">
+                            <form class="d-inline" method="post" action="{{ path('app_admin_user_update', {id: user.id}) }}">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('update_user_' ~ user.id) }}">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="username" class="form-control" value="{{ user.username }}" required>
+                                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                                    <select name="role" class="form-select">
+                                        <option value="patient" {% if roleLabel == 'Patient' %}selected{% endif %}>Patient</option>
+                                        <option value="physician" {% if roleLabel == 'Physician' %}selected{% endif %}>Physician</option>
+                                        <option value="admin" {% if roleLabel == 'Admin' %}selected{% endif %}>Admin</option>
+                                        <option value="super_admin" {% if roleLabel == 'Super Admin' %}selected{% endif %}>Super Admin</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary" type="submit">Update</button>
+                                </div>
+                            </form>
+
+                            <div class="mt-2">
+                                <form class="d-inline" method="post" action="{{ path('app_admin_user_reset_password', {id: user.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('reset_password_' ~ user.id) }}">
+                                    <div class="input-group input-group-sm">
+                                        <input type="password" name="new_password" class="form-control" placeholder="New password" required>
+                                        <button class="btn btn-outline-secondary" type="submit">Reset</button>
+                                    </div>
+                                </form>
+
+                                <form class="d-inline" method="post" action="{{ path('app_admin_user_toggle_active', {id: user.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('toggle_active_' ~ user.id) }}">
+                                    <button class="btn btn-sm btn-outline-warning mt-2" type="submit">
+                                        {% if user.isActive %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                </form>
+
+                                <form class="d-inline" method="post" action="{{ path('app_admin_user_delete', {id: user.id}) }}" onsubmit="return confirm('Delete this user?');">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger mt-2" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No users found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

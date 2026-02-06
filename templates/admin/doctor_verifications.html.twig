@@ -1,0 +1,58 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Doctor Verifications - MedTime{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Doctor Verification Requests</h1>
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+
+    {% if documents is empty %}
+        <div class="alert alert-info">No pending verification requests.</div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>License Code</th>
+                        <th>Document</th>
+                        <th>Uploaded</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                        <tr>
+                            <td>{{ doc.doctor.user.username }}</td>
+                            <td>{{ doc.doctor.licenseCode ?: 'N/A' }}</td>
+                            <td>
+                                <a href="{{ asset('uploads/doctors/' ~ doc.folderName ~ '/' ~ doc.storedName) }}" target="_blank">View PDF</a>
+                            </td>
+                            <td>{{ doc.uploadedAt|date('Y-m-d H:i') }}</td>
+                            <td><span class="badge bg-warning text-dark">{{ doc.status }}</span></td>
+                            <td class="text-end">
+                                <form class="d-inline" method="post" action="{{ path('app_admin_doctor_verification_approve', {id: doc.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('approve_document_' ~ doc.id) }}">
+                                    <button class="btn btn-sm btn-success" type="submit">Approve</button>
+                                </form>
+                                <form class="d-inline" method="post" action="{{ path('app_admin_doctor_verification_reject', {id: doc.id}) }}">
+                                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('reject_document_' ~ doc.id) }}">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

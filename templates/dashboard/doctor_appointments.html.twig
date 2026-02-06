@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Doctor Appointments - MedTime{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="min-height: 80vh;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold">Appointments</h1>
+        <a href="{{ path('app_doctor_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body">
+            <div class="alert alert-info mb-0">
+                No appointments scheduled yet. This view will show upcoming appointments once the module is enabled.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

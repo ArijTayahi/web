@@ -1,0 +1,34 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}System Settings - MedTime Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 fw-bold text-dark mb-0">System Settings</h1>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Platform</h5>
+                <p class="text-muted">Basic platform settings are managed from configuration files.</p>
+                <ul class="list-unstyled mb-0">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Security enabled</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Role hierarchy active</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Uploads configured</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body">
+                <h5 class="fw-bold">Notifications</h5>
+                <p class="text-muted">Email notifications are currently disabled in local development.</p>
+                <button class="btn btn-outline-primary rounded-pill" disabled>Configure Notifications</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

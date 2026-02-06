@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Doctor Verification - MedTime{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="background-color: #f0f4f8; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+              <div class="mb-4">
+                  <a href="{{ path('app_logout') }}" class="text-decoration-none text-muted small"><i class="fas fa-sign-out-alt me-1"></i> Log out</a>
+              </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5 text-center">
+                    
+                    <div class="mb-4">
+                        <div class="bg-soft-warning text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; background-color: rgba(255, 193, 7, 0.1);">
+                            <i class="fas fa-file-medical-alt fa-3x"></i>
+                        </div>
+                        <h2 class="fw-bold text-dark">Get Verified</h2>
+                        <p class="text-muted" style="max-width: 500px; margin: 0 auto;">To appear in search results and accept appointments, you must verify your medical credentials. Please upload your certification documents below.</p>
+                    </div>
+
+                    <div class="alert alert-info border-0 bg-soft-info text-dark rounded-3 mb-4 text-start">
+                        <i class="fas fa-info-circle me-2 text-info"></i>
+                        <strong>Process:</strong> Upload your documents -> Admin Review -> Approval & Activation.
+                    </div>
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+
+                    <div class="text-start mt-4">
+                        <h5 class="fw-bold mb-3">Uploaded Documents</h5>
+                        {% if documents is empty %}
+                            <div class="alert alert-warning">No documents uploaded yet.</div>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>File</th>
+                                            <th>Size</th>
+                                            <th>Status</th>
+                                            <th>Uploaded</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for doc in documents %}
+                                            <tr>
+                                                <td class="text-truncate" style="max-width: 260px;">{{ doc.originalName }}</td>
+                                                <td>{{ (doc.size / 1024)|number_format(1) }} KB</td>
+                                                <td>
+                                                    {% set status = doc.status|lower %}
+                                                    {% if status == 'approved' %}
+                                                        <span class="badge bg-success">Approved</span>
+                                                    {% elseif status == 'rejected' %}
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning text-dark">Pending</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ doc.uploadedAt|date('Y-m-d H:i') }}</td>
+                                                <td class="text-end">
+                                                    <form method="post" action="{{ path('app_doctor_document_delete', { id: doc.id }) }}" onsubmit="return confirm('Remove this document?');">
+                                                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('delete_doctor_document_' ~ doc.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <form class="text-start mt-4" method="post" enctype="multipart/form-data" action="{{ path('app_doctor_verify_submit') }}">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('doctor_verification') }}">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">Upload Certification (PDF)</label>
+                            <div class="upload-box border-2 border-dashed rounded-4 p-5 text-center bg-light position-relative" style="border-style: dashed; border-color: #dee2e6;">
+                                <input type="file" name="certification_pdf" accept="application/pdf" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3 opacity-50"></i>
+                                <h6 class="fw-bold text-dark">Drag & Drop or Click to Upload</h6>
+                                <p class="small text-muted mb-0">PDF only, Max 5MB</p>
+                            </div>
+                        </div>
+
+                         <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">License Number</label>
+                            <input type="text" name="license_number" class="form-control rounded-pill p-3 bg-light border-0" placeholder="Enter your medical license number" value="{{ doctor ? doctor.licenseCode : '' }}">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm" style="background-color: #1E90FF; border: none;">Submit for Review</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

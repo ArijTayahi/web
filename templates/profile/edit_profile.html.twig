@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Profile - MedTime{% endblock %}
+
+{% block body %}
+<!-- Reusing Header for consistency if not in dashboard layout, or extending dashboard layout? 
+     For simplicity, let's assume this is a standalone page linked from dashboard 
+     but keeping the "Dashboard" vibe requires the sidebar. 
+     Pass 'role' variable to decide sidebar? For now, I'll make a generic wrapper 
+     or just correct the "Back to Dashboard" link based on referrer. -->
+
+<div class="container py-5" style="background-color: #f0f4f8; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <!-- Breadcrumb / Back Link -->
+            <div class="mb-4">
+                 <a href="{{ path('app_patient_dashboard') }}" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-0 p-4">
+                    <h4 class="fw-bold mb-0 text-dark">Edit Profile</h4>
+                    <p class="text-muted small mb-0">Update your personal information and settings.</p>
+                </div>
+                
+                <div class="card-body p-4 pt-0">
+                    <form method="post" action="{{ path('app_profile_update') }}">
+                        <!-- Profile Picture -->
+                        <div class="d-flex align-items-center mb-5">
+                            <div class="position-relative me-4">
+                                <img src="{{ asset('assets/img/doctors/doctors-1.jpg') }}" class="rounded-circle shadow-sm" width="100" height="100" style="object-fit: cover;" alt="Profile">
+                                <button type="button" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 border-2 border-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background-color: #1E90FF;">
+                                    <i class="fas fa-camera text-white small"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Profile Photo</h6>
+                                <p class="text-muted small mb-2">Recommended: Square JPG, PNG (Max 2MB)</p>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Upload New</button>
+                            </div>
+                        </div>
+
+                        <!-- Basic Info -->
+                        <h6 class="fw-bold text-dark mb-3 text-uppercase small ls-1">Basic Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-secondary">Full Name</label>
+                                <input type="text" class="form-control rounded-3 bg-light border-0 py-2" name="full_name" value="Ahmed Ben Ali">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-secondary">Username (Unique)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0 text-muted">@</span>
+                                    <input type="text" class="form-control rounded-end-3 bg-light border-0 py-2" name="username" value="ahmed.ali">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-secondary">Email</label>
+                                <input type="email" class="form-control rounded-3 bg-light border-0 py-2" name="email" value="ahmed@example.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-secondary">Phone</label>
+                                <input type="tel" class="form-control rounded-3 bg-light border-0 py-2" name="phone" value="+216 00 000 000">
+                            </div>
+                        </div>
+
+                        <!-- Doctor Specific (Hidden for Patient via JS/Server Logic) -->
+                        <div id="doctor-fields" class="mb-4 p-3 bg-soft-info rounded-3 border border-info border-opacity-10">
+                            <h6 class="fw-bold text-info mb-3 text-uppercase small ls-1"><i class="fas fa-user-md me-2"></i>Doctor Details</h6>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">Medical Field (General First)</label>
+                                <select class="form-select rounded-3 bg-white border-0 py-2" name="medical_field">
+                                    <option value="general">General Medicine</option>
+                                    <option value="cardio">Cardiology</option>
+                                    <option value="derma">Dermatology</option>
+                                    <option value="pedia">Pediatrics</option>
+                                </select>
+                            </div>
+                             <div class="mb-3">
+                                <label class="form-label small fw-bold text-secondary">Description / Bio</label>
+                                <textarea class="form-control rounded-3 bg-white border-0 py-2" rows="3" name="bio" placeholder="Describe your experience and specialties..."></textarea>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4 fw-bold">Cancel</button>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background-color: #1E90FF; border: none;">Save Changes</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .ls-1 { letter-spacing: 1px; }
+    .bg-soft-info { background-color: rgba(13, 202, 240, 0.05); }
+</style>
+{% endblock %}

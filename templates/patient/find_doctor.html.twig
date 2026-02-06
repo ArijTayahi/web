@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Find a Doctor - My Health Space{% endblock %}
+
+{% block body %}
+<div class="container py-5" style="background-color: #f0f4f8; min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <div class="mb-4">
+                 <a href="{{ path('app_patient_dashboard') }}" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left me-1"></i> Back to My Health Space</a>
+            </div>
+
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark">Find a Certified Doctor</h2>
+                <p class="text-muted">Browse our network of verified medical professionals.</p>
+                <div class="row justify-content-center mt-4">
+                    <div class="col-md-8">
+                        <form class="input-group shadow-sm rounded-pill overflow-hidden" method="get" action="{{ path('app_find_doctor') }}">
+                             <span class="input-group-text bg-white border-0 ps-3"><i class="fas fa-search text-secondary"></i></span>
+                            <input type="text" name="q" value="{{ search }}" class="form-control border-0 py-3" placeholder="Search by username or email...">
+                            <button class="btn btn-primary px-4 fw-bold" style="background-color: #1E90FF; border: none;" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                {% for doctor in doctors %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 hover-shadow-lg transition-transform text-center p-3">
+                            <div class="position-absolute top-0 end-0 p-3">
+                                <i class="fas fa-certificate text-primary" title="Certified"></i>
+                            </div>
+                            <div class="card-body">
+                                <div class="rounded-circle shadow-sm mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; margin: 0 auto; background: #eef3f7;">
+                                    <span class="fw-bold text-primary">{{ doctor.user.username|slice(0, 2)|upper }}</span>
+                                </div>
+                                <h5 class="fw-bold mb-1">Dr. {{ doctor.user.username }}</h5>
+                                <p class="text-primary small mb-3 fw-bold">Verified Doctor</p>
+                                <p class="text-muted small mb-4">Contact: {{ doctor.user.email }}</p>
+                                <div class="d-grid gap-2">
+                                    <a href="#" class="btn btn-primary rounded-pill py-2" style="background-color: #1E90FF; border: none;">Book Appointment</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info">No certified doctors found.</div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-shadow-lg:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    .transition-transform { transition: all 0.3s ease; }
+    .bg-soft-primary { background-color: rgba(30, 144, 255, 0.1); }
+</style>
+{% endblock %}

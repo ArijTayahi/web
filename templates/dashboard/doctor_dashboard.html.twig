@@ -1,0 +1,228 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Doctor Dashboard - MedTime{% endblock %}
+
+{% block body %}
+{# sidebar medecin houni #}
+<div class="container-fluid" style="background-color: #f3f6f9; min-height: 100vh;">
+    <div class="row">
+        
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar shadow-sm position-fixed" style="height: 100vh; z-index: 100; padding-top: 80px;">
+            <div class="position-sticky pt-3">
+                 <div class="text-center mb-4">
+                     <div class="avatar rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-2" style="width: 80px; height: 80px;">
+                        <i class="fas fa-user-md fa-2x text-primary"></i>
+                     </div>
+                            <h6 class="fw-bold mb-0">Dr. {{ app.user ? app.user.username : 'Physician' }}</h6>
+                            {% if app.user and app.user.doctor and app.user.doctor.isCertified %}
+                                <span class="badge bg-soft-primary text-primary rounded-pill">Verified</span>
+                            {% else %}
+                                <span class="badge bg-soft-warning text-warning rounded-pill">Pending Verification</span>
+                            {% endif %}
+                     <div class="mt-2">
+                         <a href="{{ path('app_profile_edit') }}" class="btn btn-sm btn-outline-secondary rounded-pill py-0" style="font-size: 0.75rem;">Edit Profile</a>
+                     </div>
+                </div>
+
+                <ul class="nav flex-column gap-2 px-3">
+                    <li class="nav-item">
+                        <a class="nav-link active rounded-3 d-flex align-items-center p-3" href="{{ path('app_doctor_dashboard') }}" style="background-color: #e3f2fd; color: #1E90FF; font-weight: 600;">
+                            <i class="fas fa-home me-3"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_doctor_appointments') }}">
+                            <i class="fas fa-calendar-check me-3"></i> Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                         <a href="{{ path('app_doctor_verification') }}" class="nav-link rounded-3 d-flex align-items-center p-3 text-warning hover-bg-light">
+                            <i class="fas fa-certificate me-3"></i> Get Verified
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_doctor_patients') }}">
+                            <i class="fas fa-user-injured me-3"></i> Patients
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4 border-top pt-3">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-danger hover-bg-red-light" href="{{ path('app_logout') }}">
+                            <i class="fas fa-sign-out-alt me-3"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+                
+                 <!-- Certification Alert Mini -->
+                <div class="mt-auto p-3 m-3 bg-soft-warning rounded-3 border border-warning border-opacity-25">
+                     <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        <small class="fw-bold text-dark">Action Needed</small>
+                     </div>
+                     <p class="small text-muted mb-0" style="font-size: 0.75rem;">Please upload your updated medical certification.</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+            
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+                <div>
+                    <h1 class="h2 fw-bold text-dark">Good Morning, Dr. {{ app.user ? app.user.username : 'Physician' }}</h1>
+                    <p class="text-muted">You have <span class="text-primary fw-bold">4 appointments</span> scheduled for today.</p>
+                </div>
+                 <div class="d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm">
+                    <i class="fas fa-clock text-secondary me-2"></i>
+                    <span class="fw-bold text-dark small">Today: 12 Oct 2026</span>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-3">
+                    <form class="row g-3" method="get" action="{{ path('app_doctor_dashboard') }}">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0 rounded-start-pill ps-3"><i class="fas fa-search text-muted"></i></span>
+                                <input type="text" name="q" value="{{ search|default('') }}" class="form-control border-start-0 rounded-end-pill ps-0" placeholder="Search patients by username or email">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100 rounded-pill" type="submit">Search Patients</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if search is defined and search != '' %}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3 px-4">
+                        <h5 class="fw-bold mb-0">Search Results</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 py-3 border-0 text-secondary small text-uppercase">Username</th>
+                                    <th class="py-3 border-0 text-secondary small text-uppercase">Email</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for patient in patients %}
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-dark">{{ patient.username }}</td>
+                                        <td class="text-muted">{{ patient.email }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="ps-4 text-muted" colspan="2">No patients found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row g-4 mb-4">
+                <!-- Appointments Table Card -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                        <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Upcoming Appointments</h5>
+                            <button class="btn btn-sm btn-light rounded-pill px-3">View All</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 py-3 border-0 text-secondary small text-uppercase">Time</th>
+                                        <th class="py-3 border-0 text-secondary small text-uppercase">Patient</th>
+                                        <th class="py-3 border-0 text-secondary small text-uppercase">Reason</th>
+                                        <th class="pe-4 py-3 border-0 text-end text-secondary small text-uppercase">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-dark">09:00 AM</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar rounded-circle bg-soft-info text-info me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background-color: #e0f7fa;">F</div>
+                                                <span class="fw-bold">Mme. Fatma Rezgui</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted">Routine Checkup</td>
+                                        <td class="pe-4 text-end">
+                                            <span class="badge bg-soft-success text-success rounded-pill px-3">Confirmed</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-dark">10:30 AM</td>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                <div class="avatar rounded-circle bg-soft-warning text-warning me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background-color: #fff8e1;">A</div>
+                                                <span class="fw-bold">M. Ahmed Ben Ali</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted">Cardiology Follow-up</td>
+                                        <td class="pe-4 text-end">
+                                             <button class="btn btn-sm btn-primary rounded-pill px-3" style="background-color: #1E90FF; border: none;">Start Visit</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-dark">11:15 AM</td>
+                                        <td>
+                                             <div class="d-flex align-items-center">
+                                                <div class="avatar rounded-circle bg-soft-danger text-danger me-2 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background-color: #ffebee;">S</div>
+                                                <span class="fw-bold">Mme. Samia T.</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-muted">Consultation</td>
+                                        <td class="pe-4 text-end">
+                                            <span class="badge bg-light text-secondary rounded-pill px-3">Pending</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Consultation Note -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                        <div class="card-body p-4">
+                            <h5 class="fw-bold mb-3">Quick Notes</h5>
+                            <form>
+                                <div class="mb-3">
+                                    <label class="form-label small text-secondary fw-bold">Select Patient</label>
+                                    <select class="form-select rounded-3 border-light bg-light">
+                                        <option>M. Ahmed Ben Ali</option>
+                                        <option>Mme. Fatma Rezgui</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small text-secondary fw-bold">Observations</label>
+                                    <textarea class="form-control rounded-3 border-light bg-light" rows="5" placeholder="Type clinical notes here..."></textarea>
+                                </div>
+                                <button type="button" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm" style="background-color: #1E90FF; border: none;">
+                                    <i class="fas fa-save me-2"></i> Save Note
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<style>
+    .hover-bg-light:hover { background-color: #f8f9fa !important; }
+    .hover-bg-red-light:hover { background-color: #fff5f5 !important; }
+    .bg-soft-primary { background-color: rgba(30, 144, 255, 0.1); }
+    .bg-soft-warning { background-color: rgba(255, 193, 7, 0.1); }
+    .bg-soft-success { background-color: rgba(25, 135, 84, 0.1); }
+</style>
+{% endblock %}
