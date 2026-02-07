@@ -1,0 +1,26 @@
+{
+    "app": {
+        "path": "\/assets\/app-f4d6c38642739a52616bf03a70bbc4df.js",
+        "type": "js"
+    },
+    "\/assets\/js\/main.js": {
+        "path": "\/assets\/js\/main-2f0d56bcd89435eca145ac65e23834b2.js",
+        "type": "js"
+    },
+    "@hotwired\/stimulus": {
+        "path": "\/assets\/vendor\/@hotwired\/stimulus\/stimulus.index-4b8ccd71e6b1c4ddba22853d5a50a26c.js",
+        "type": "js"
+    },
+    "@symfony\/stimulus-bundle": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/loader-5751ad1ee2975e725a94d8121d153d17.js",
+        "type": "js"
+    },
+    "\/assets\/@symfony\/stimulus-bundle\/controllers.js": {
+        "path": "\/assets\/@symfony\/stimulus-bundle\/controllers-7cbfd57985d28bce7c7110b2ca6c3224.js",
+        "type": "js"
+    },
+    "@hotwired\/turbo": {
+        "path": "\/assets\/vendor\/@hotwired\/turbo\/turbo.index-a53d794fa85309d61a95703410716017.js",
+        "type": "js"
+    }
+}
