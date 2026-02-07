@@ -14,6 +14,38 @@
     <div class="alert alert-success">{{ message }}</div>
 {% endfor %}
 
+<form class="card border-0 shadow-sm rounded-4 mb-4" method="post" action="{{ path('app_admin_user_create') }}">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token('create_user') }}">
+    <div class="card-body p-3">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary">Username</label>
+                <input type="text" name="username" class="form-control rounded-pill" placeholder="username" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary">Email</label>
+                <input type="email" name="email" class="form-control rounded-pill" placeholder="email@example.com" required>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-secondary">Password</label>
+                <input type="password" name="password" class="form-control rounded-pill" placeholder="Min 8 characters" required>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-bold text-secondary">Role</label>
+                <select class="form-select rounded-pill" name="role">
+                    <option value="patient">Patient</option>
+                    <option value="physician">Physician</option>
+                    <option value="admin">Admin</option>
+                    <option value="super_admin">Super Admin</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button class="btn btn-primary rounded-pill" type="submit">Create</button>
+            </div>
+        </div>
+    </div>
+</form>
+
 <form class="card border-0 shadow-sm rounded-4 mb-4" method="get" action="{{ path('app_admin_users') }}">
     <div class="card-body p-3">
         <div class="row g-3">
@@ -74,8 +106,13 @@
                     <tr>
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <div class="avatar rounded-circle bg-light text-secondary me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                    {{ user.username|slice(0, 1)|upper }}
+                                {% set userAvatarPath = profile_image(user) %}
+                                <div class="avatar rounded-circle bg-light text-secondary me-3 d-flex align-items-center justify-content-center overflow-hidden" style="width: 40px; height: 40px;">
+                                    {% if userAvatarPath %}
+                                        <img src="{{ asset(userAvatarPath) }}" alt="{{ user.username }}" class="w-100 h-100" style="object-fit: cover;">
+                                    {% else %}
+                                        {{ user.username|slice(0, 1)|upper }}
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <h6 class="mb-0 fw-bold">{{ user.username }}</h6>

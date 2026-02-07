@@ -15,7 +15,13 @@
             
             <!-- Breadcrumb / Back Link -->
             <div class="mb-4">
-                 <a href="{{ path('app_patient_dashboard') }}" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                 {% if is_granted('ROLE_ADMIN') %}
+                     <a href="{{ path('app_admin_dashboard') }}" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                 {% elseif is_granted('ROLE_PHYSICIAN') %}
+                     <a href="{{ path('app_doctor_dashboard') }}" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                 {% else %}
+                     <a href="{{ path('app_patient_dashboard') }}" class="text-decoration-none text-muted small"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+                 {% endif %}
             </div>
 
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
@@ -25,11 +31,12 @@
                 </div>
                 
                 <div class="card-body p-4 pt-0">
-                    <form method="post" action="{{ path('app_profile_update') }}">
+                    <form method="post" action="{{ path('app_profile_update') }}" enctype="multipart/form-data">
                         <!-- Profile Picture -->
                         <div class="d-flex align-items-center mb-5">
                             <div class="position-relative me-4">
-                                <img src="{{ asset('assets/img/doctors/doctors-1.jpg') }}" class="rounded-circle shadow-sm" width="100" height="100" style="object-fit: cover;" alt="Profile">
+                                {% set profileAvatarPath = profile_image(app.user) %}
+                                <img src="{{ profileAvatarPath ? asset(profileAvatarPath) : ('https://ui-avatars.com/api/?name=' ~ app.user.username|url_encode ~ '&background=1d4ed8&color=fff') }}" class="rounded-circle shadow-sm" width="100" height="100" style="object-fit: cover;" alt="Profile" id="profilePhotoPreview">
                                 <button type="button" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 border-2 border-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background-color: #1E90FF;">
                                     <i class="fas fa-camera text-white small"></i>
                                 </button>
@@ -37,7 +44,8 @@
                             <div>
                                 <h6 class="fw-bold mb-1">Profile Photo</h6>
                                 <p class="text-muted small mb-2">Recommended: Square JPG, PNG (Max 2MB)</p>
-                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Upload New</button>
+                                <input type="file" class="d-none" name="profile_photo" id="profilePhotoInput" accept="image/png,image/jpeg">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" id="profilePhotoTrigger">Upload New</button>
                             </div>
                         </div>
 
@@ -46,26 +54,27 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Full Name</label>
-                                <input type="text" class="form-control rounded-3 bg-light border-0 py-2" name="full_name" value="Ahmed Ben Ali">
+                                <input type="text" class="form-control rounded-3 bg-light border-0 py-2" name="full_name" value="{{ app.user ? app.user.username : '' }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Username (Unique)</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-0 text-muted">@</span>
-                                    <input type="text" class="form-control rounded-end-3 bg-light border-0 py-2" name="username" value="ahmed.ali">
+                                    <input type="text" class="form-control rounded-end-3 bg-light border-0 py-2" name="username" value="{{ app.user ? app.user.username : '' }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Email</label>
-                                <input type="email" class="form-control rounded-3 bg-light border-0 py-2" name="email" value="ahmed@example.com">
+                                <input type="email" class="form-control rounded-3 bg-light border-0 py-2" name="email" value="{{ app.user ? app.user.email : '' }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small fw-bold text-secondary">Phone</label>
-                                <input type="tel" class="form-control rounded-3 bg-light border-0 py-2" name="phone" value="+216 00 000 000">
+                                <input type="tel" class="form-control rounded-3 bg-light border-0 py-2" name="phone" value="{{ app.user and app.user.patient ? (app.user.patient.region ?: '') : '' }}">
                             </div>
                         </div>
 
                         <!-- Doctor Specific (Hidden for Patient via JS/Server Logic) -->
+                        {% if is_granted('ROLE_PHYSICIAN') %}
                         <div id="doctor-fields" class="mb-4 p-3 bg-soft-info rounded-3 border border-info border-opacity-10">
                             <h6 class="fw-bold text-info mb-3 text-uppercase small ls-1"><i class="fas fa-user-md me-2"></i>Doctor Details</h6>
                             <div class="mb-3">
@@ -82,6 +91,7 @@
                                 <textarea class="form-control rounded-3 bg-white border-0 py-2" rows="3" name="bio" placeholder="Describe your experience and specialties..."></textarea>
                             </div>
                         </div>
+                        {% endif %}
 
                         <hr class="my-4">
 
@@ -102,4 +112,22 @@
     .ls-1 { letter-spacing: 1px; }
     .bg-soft-info { background-color: rgba(13, 202, 240, 0.05); }
 </style>
+
+<script>
+    const profilePhotoTrigger = document.getElementById('profilePhotoTrigger');
+    const profilePhotoInput = document.getElementById('profilePhotoInput');
+    const profilePhotoPreview = document.getElementById('profilePhotoPreview');
+
+    if (profilePhotoTrigger && profilePhotoInput) {
+        profilePhotoTrigger.addEventListener('click', () => profilePhotoInput.click());
+    }
+
+    if (profilePhotoInput && profilePhotoPreview) {
+        profilePhotoInput.addEventListener('change', (event) => {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            profilePhotoPreview.src = URL.createObjectURL(file);
+        });
+    }
+</script>
 {% endblock %}

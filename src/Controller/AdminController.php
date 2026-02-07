@@ -79,6 +79,138 @@ final class AdminController extends AbstractController
     }
 
     #[IsGranted('ROLE_SUPER_ADMIN')]
+    #[Route('/admin/users/create', name: 'app_admin_user_create', methods: ['POST'])]
+    public function createUser(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        RoleRepository $roleRepository,
+        UserPasswordHasherInterface $passwordHasher
+    ): RedirectResponse {
+        if (!$this->isCsrfTokenValid('create_user', $request->request->get('_csrf_token'))) {
+            $this->addFlash('error', 'Invalid form token.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        $username = trim((string) $request->request->get('username'));
+        $email = trim((string) $request->request->get('email'));
+        $password = (string) $request->request->get('password');
+        $role = (string) $request->request->get('role');
+
+        if ($username === '' || $email === '' || $password === '') {
+            $this->addFlash('error', 'Username, email, and password are required.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->addFlash('error', 'Please provide a valid email address.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        if (strlen($username) < 3) {
+            $this->addFlash('error', 'Username must be at least 3 characters.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        if (strlen($password) < 8) {
+            $this->addFlash('error', 'Password must be at least 8 characters.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        if ($userRepository->findOneBy(['username' => $username])) {
+            $this->addFlash('error', 'Username already exists.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        if ($userRepository->findOneBy(['email' => $email])) {
+            $this->addFlash('error', 'Email already exists.');
+
+            return $this->redirectToRoute('app_admin_users');
+        }
+
+        $user = new User();
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setPassword($passwordHasher->hashPassword($user, $password));
+        $user->setIsActive(true);
+
+        $roleName = match ($role) {
+            'physician' => 'ROLE_PHYSICIAN',
+            'patient' => 'ROLE_PATIENT',
+            'admin' => 'ROLE_ADMIN',
+            'super_admin' => 'ROLE_SUPER_ADMIN',
+            default => 'ROLE_PATIENT',
+        };
+
+        $roleEntity = $roleRepository->findOneBy(['name' => $roleName]);
+        if (!$roleEntity) {
+            $roleEntity = new Role();
+            $roleEntity->setName($roleName);
+            $entityManager->persist($roleEntity);
+        }
+        $user->addRoleEntity($roleEntity);
+
+        if ($roleName === 'ROLE_PHYSICIAN') {
+            $doctor = new Doctor();
+            $doctor->setUser($user);
+            $doctor->setIsCertified(false);
+            $entityManager->persist($doctor);
+        } elseif ($roleName === 'ROLE_PATIENT') {
+            $patient = new Patient();
+            $patient->setUser($user);
+            $entityManager->persist($patient);
+        }
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'User created successfully.');
+
+        return $this->redirectToRoute('app_admin_users');
+    }
+
+    #[IsGranted('ROLE_SUPER_ADMIN')]
+    #[Route('/admin/users/export', name: 'app_admin_users_export', methods: ['GET'])]
+    public function exportUsers(UserRepository $userRepository): Response
+    {
+        $users = $userRepository->findBy([], ['createdAt' => 'DESC']);
+
+        $lines = [];
+        $lines[] = 'id,username,email,roles,active,created_at';
+
+        foreach ($users as $user) {
+            $roles = implode('|', $user->getRoles());
+            $createdAt = $user->getCreatedAt() ? $user->getCreatedAt()->format('Y-m-d H:i:s') : '';
+            $lines[] = sprintf(
+                '%d,%s,%s,%s,%s,%s',
+                $user->getId(),
+                $this->escapeCsv($user->getUsername()),
+                $this->escapeCsv($user->getEmail()),
+                $this->escapeCsv($roles),
+                $user->isActive() ? '1' : '0',
+                $createdAt
+            );
+        }
+
+        $content = implode("\n", $lines);
+
+        return new Response(
+            $content,
+            200,
+            [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="users_export.csv"',
+            ]
+        );
+    }
+
+    #[IsGranted('ROLE_SUPER_ADMIN')]
     #[Route('/admin/users/{id}/update', name: 'app_admin_user_update', methods: ['POST'])]
     public function updateUser(
         User $user,
@@ -319,5 +451,17 @@ final class AdminController extends AbstractController
         $this->addFlash('success', 'Document rejected.');
 
         return $this->redirectToRoute('app_admin_doctor_verifications');
+    }
+
+    private function escapeCsv(?string $value): string
+    {
+        $value = (string) $value;
+        $value = str_replace('"', '""', $value);
+
+        if (str_contains($value, ',') || str_contains($value, '"') || str_contains($value, "\n")) {
+            return '"' . $value . '"';
+        }
+
+        return $value;
     }
 }
