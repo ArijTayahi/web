@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel Article - Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="mb-4">
+                <i class="fas fa-plus"></i> Créer un nouvel article
+            </h1>
+
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.titre) }}
+                        {{ form_row(form.contenu) }}
+                        {{ form_row(form.imageFile) }}
+                        {{ form_row(form.specialite) }}
+                        {{ form_row(form.tags) }}
+                        {{ form_row(form.statut) }}
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ path('app_admin_article_index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Créer l'article
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

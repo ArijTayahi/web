@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.titre }} - Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-newspaper"></i> Détails de l'article</h1>
+                <div>
+                    <a href="{{ path('app_admin_article_edit', {id: article.id}) }}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <a href="{{ path('app_admin_article_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                {% if article.image %}
+                    <img src="{{ asset('uploads/articles/' ~ article.image) }}" 
+                         class="card-img-top" 
+                         alt="{{ article.titre }}"
+                         style="max-height: 400px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title">{{ article.titre }}</h2>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-primary">{{ article.specialite.nom }}</span>
+                        {% for tag in article.tags %}
+                            <span class="badge bg-secondary">{{ tag.nom }}</span>
+                        {% endfor %}
+                        <span class="badge bg-{{ article.statut == 'publie' ? 'success' : 'warning' }}">
+                            {{ article.statut }}
+                        </span>
+                    </div>
+
+                    <table class="table table-sm table-borderless mb-4">
+                        <tr>
+                            <th width="150">Auteur :</th>
+                            <td>Dr. {{ article.auteur.user.nom }} {{ article.auteur.user.prenom }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date de création :</th>
+                            <td>{{ article.dateCreation|date('d/m/Y à H:i') }}</td>
+                        </tr>
+                        {% if article.dateModification %}
+                        <tr>
+                            <th>Dernière modification :</th>
+                            <td>{{ article.dateModification|date('d/m/Y à H:i') }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Vues :</th>
+                            <td><i class="fas fa-eye"></i> {{ article.nbVues }}</td>
+                        </tr>
+                        <tr>
+                            <th>Likes :</th>
+                            <td><i class="fas fa-heart text-danger"></i> {{ article.nbLikes }}</td>
+                        </tr>
+                        <tr>
+                            <th>Commentaires :</th>
+                            <td><i class="fas fa-comment"></i> {{ article.nbComments }}</td>
+                        </tr>
+                    </table>
+
+                    <hr>
+
+                    <h5>Contenu :</h5>
+                    <div class="article-content">
+                        {{ article.contenu|nl2br }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

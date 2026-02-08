@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Spécialités - Admin{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-stethoscope"></i> Gestion des Spécialités</h1>
+        <a href="{{ path('app_admin_specialite_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvelle Spécialité
+        </a>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Description</th>
+                        <th>Nombre d'articles</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for specialite in specialites %}
+                        <tr>
+                            <td>{{ specialite.id }}</td>
+                            <td><strong>{{ specialite.nom }}</strong></td>
+                            <td>{{ specialite.description|slice(0, 100) }}{% if specialite.description|length > 100 %}...{% endif %}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ specialite.articles|length }} articles</span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('app_admin_specialite_edit', {id: specialite.id}) }}" 
+                                       class="btn btn-sm btn-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-danger" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal{{ specialite.id }}"
+                                            title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Modal de suppression -->
+                                <div class="modal fade" id="deleteModal{{ specialite.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmer la suppression</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Êtes-vous sûr de vouloir supprimer la spécialité "{{ specialite.nom }}" ?
+                                                {% if specialite.articles|length > 0 %}
+                                                    <div class="alert alert-warning mt-2">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                        Attention : Cette spécialité contient {{ specialite.articles|length }} article(s).
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_admin_specialite_delete', {id: specialite.id}) }}" style="display: inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ specialite.id) }}">
+                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                <i class="fas fa-inbox"></i> Aucune spécialité
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

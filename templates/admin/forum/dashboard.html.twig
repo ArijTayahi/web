@@ -1,0 +1,231 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Forum - Admin{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">
+        <i class="fas fa-chart-line"></i> Dashboard Forum Médical
+    </h1>
+
+    <!-- Statistiques globales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-newspaper"></i> Articles
+                    </h5>
+                    <h2>{{ articleStats.total }}</h2>
+                    <small>{{ articleStats.publies }} publiés / {{ articleStats.brouillons }} brouillons</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-comments"></i> Commentaires
+                    </h5>
+                    <h2>{{ totalComments }}</h2>
+                    <small>Total des commentaires</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-heart"></i> Likes
+                    </h5>
+                    <h2>{{ totalLikes }}</h2>
+                    <small>Total des likes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-eye"></i> Vues
+                    </h5>
+                    <h2>{{ articleStats.totalVues }}</h2>
+                    <small>Total des vues</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Articles les plus populaires -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-fire"></i> Articles les plus populaires</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for article in mostPopularArticles %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ article.titre }}</strong><br>
+                                    <small class="text-muted">Par Dr. {{ article.auteur.user.nom }}</small>
+                                </div>
+                                <span class="badge bg-primary">{{ article.nbVues }} vues</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles récents -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> Articles récents</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for article in recentArticles %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ article.titre }}</strong><br>
+                                    <small class="text-muted">{{ article.dateCreation|date('d/m/Y à H:i') }}</small>
+                                </div>
+                                <span class="badge bg-{{ article.statut == 'publie' ? 'success' : 'warning' }}">
+                                    {{ article.statut }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Spécialités populaires -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-stethoscope"></i> Spécialités populaires</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Spécialité</th>
+                                <th class="text-center">Articles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for spec in popularSpecialites %}
+                                <tr>
+                                    <td>{{ spec.nom }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">{{ spec.articles|length }}</span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tags populaires -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-tags"></i> Tags les plus utilisés</h5>
+                </div>
+                <div class="card-body">
+                    {% for tag in popularTags %}
+                        <span class="badge bg-secondary me-2 mb-2" style="font-size: 1rem;">
+                            {{ tag.nom }} ({{ tag.articles|length }})
+                        </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commentaires récents -->
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-comments"></i> Commentaires récents</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Article</th>
+                                <th>Commentaire</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comment in recentComments %}
+                                <tr>
+                                    <td>{{ comment.utilisateur.nom }} {{ comment.utilisateur.prenom }}</td>
+                                    <td>
+                                        <a href="{{ path('app_forum_article_show', {id: comment.article.id}) }}" target="_blank">
+                                            {{ comment.article.titre|slice(0, 40) }}...
+                                        </a>
+                                    </td>
+                                    <td>{{ comment.contenu|slice(0, 50) }}...</td>
+                                    <td>{{ comment.dateCreation|date('d/m/Y H:i') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Évolution mensuelle -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> Évolution mensuelle des publications</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Mois</th>
+                                <th>Nombre d'articles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in monthlyArticles %}
+                                <tr>
+                                    <td>{{ data.month }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar" 
+                                                 role="progressbar" 
+                                                 style="width: {{ (data.count / 10) * 100 }}%"
+                                                 aria-valuenow="{{ data.count }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ data.count }} articles
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

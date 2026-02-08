@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau Tag - Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="mb-4">
+                <i class="fas fa-plus"></i> Créer un nouveau tag
+            </h1>
+
+            <div class="card">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        {{ form_row(form.nom) }}
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ path('app_admin_tag_index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Créer le tag
+                            </button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
