@@ -50,6 +50,11 @@ class AdminArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // S'assurer que la date de création est définie
+            if (!$article->getDateCreation()) {
+                $article->setDateCreation(new \DateTime());
+            }
+
             // Gestion de l'upload d'image
             $imageFile = $form->get('imageFile')->getData();
             if ($imageFile) {
@@ -72,12 +77,16 @@ class AdminArticleController extends AbstractController
             $user = $this->getUser();
             $doctor = $entityManager->getRepository(Doctor::class)->findOneBy(['user' => $user]);
             
-            if (!$doctor) {
-                $this->addFlash('error', 'Vous devez être un médecin pour créer un article.');
+            // Si l'utilisateur n'a pas de profil Doctor, créer un article sans auteur (admin)
+            if (!$doctor && !in_array('ROLE_ADMIN', $user->getRoles())) {
+                $this->addFlash('error', 'Vous devez être un médecin ou admin pour créer un article.');
                 return $this->redirectToRoute('app_admin_article_index');
             }
 
-            $article->setAuteur($doctor);
+            // Utiliser le doctor s'il existe, sinon créer l'article sans auteur spécifique
+            if ($doctor) {
+                $article->setAuteur($doctor);
+            }
 
             $entityManager->persist($article);
             $entityManager->flush();

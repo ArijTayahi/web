@@ -46,15 +46,15 @@
                                 {% endif %}
                             </td>
                             <td><span class="badge bg-primary">{{ article.specialite.nom }}</span></td>
-                            <td>Dr. {{ article.auteur.user.nom }}</td>
+                            <td>{% if article.auteur %}Dr. {{ article.auteur.user.username }}{% else %}<em class="text-muted">Admin</em>{% endif %}</td>
                             <td>
                                 <span class="badge bg-{{ article.statut == 'publie' ? 'success' : (article.statut == 'brouillon' ? 'warning' : 'secondary') }}">
                                     {{ article.statut }}
                                 </span>
                             </td>
                             <td><i class="fas fa-eye"></i> {{ article.nbVues }}</td>
-                            <td><i class="fas fa-heart text-danger"></i> {{ article.nbLikes }}</td>
-                            <td><i class="fas fa-comment"></i> {{ article.nbComments }}</td>
+                            <td><i class="fas fa-heart text-danger"></i> {{ article.likes|length }}</td>
+                            <td><i class="fas fa-comment"></i> {{ article.comments|length }}</td>
                             <td>{{ article.dateCreation|date('d/m/Y') }}</td>
                             <td>
                                 <div class="btn-group" role="group">

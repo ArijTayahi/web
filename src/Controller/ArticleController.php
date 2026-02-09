@@ -120,8 +120,15 @@ class ArticleController extends AbstractController
     public function like(
         Article $article,
         EntityManagerInterface $entityManager,
-        ArticleLikeRepository $likeRepository
+        ArticleLikeRepository $likeRepository,
+        Request $request
     ): Response {
+        // Vérifier le token CSRF
+        if (!$this->isCsrfTokenValid('like_article', $request->request->get('_token'))) {
+            $this->addFlash('error', 'Erreur de sécurité. Veuillez réessayer.');
+            return $this->redirectToRoute('app_forum_article_show', ['id' => $article->getId()]);
+        }
+
         if (!$this->getUser()) {
             $this->addFlash('error', 'Vous devez être connecté pour aimer un article.');
             return $this->redirectToRoute('app_login');

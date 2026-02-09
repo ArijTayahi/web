@@ -94,13 +94,12 @@ class ArticleRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.auteur', 'auteur')
             ->leftJoin('a.specialite', 's')
-            ->leftJoin('a.tags', 't')
-            ->addSelect('auteur', 's', 't')
+            ->addSelect('auteur', 's')
             ->where('a.statut = :statut')
             ->setParameter('statut', 'publie');
 
         if ($query) {
-            $qb->andWhere('a.titre LIKE :query OR a.contenu LIKE :query')
+            $qb->andWhere('LOWER(a.titre) LIKE LOWER(:query) OR LOWER(a.contenu) LIKE LOWER(:query)')
                 ->setParameter('query', '%' . $query . '%');
         }
 
@@ -110,7 +109,8 @@ class ArticleRepository extends ServiceEntityRepository
         }
 
         if ($tag) {
-            $qb->andWhere('t = :tag')
+            $qb->leftJoin('a.tags', 't')
+                ->andWhere('t = :tag')
                 ->setParameter('tag', $tag);
         }
 

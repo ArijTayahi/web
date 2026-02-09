@@ -1,0 +1,234 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.titre }} - Forum{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Article Header -->
+            <div class="mb-4">
+                <a href="{{ path('app_forum_index') }}" class="text-decoration-none text-muted mb-3 d-inline-block">
+                    <i class="fas fa-arrow-left me-2"></i>Retour au forum
+                </a>
+                
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h1 class="fw-bold text-dark mb-2">{{ article.titre }}</h1>
+                        <div class="text-muted small">
+                            <i class="fas fa-calendar me-1"></i>{{ article.dateCreation|date('d/m/Y') }}
+                            {% if article.auteur %}
+                                • <i class="fas fa-user-md me-1"></i>Dr. {{ article.auteur.user.username }}
+                            {% else %}
+                                • <i class="fas fa-shield-alt me-1"></i>Admin
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if article.specialite %}
+                        <span class="badge bg-info">{{ article.specialite.nom }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Article Image -->
+            {% if article.image %}
+                <img src="/uploads/articles/{{ article.image }}" class="img-fluid rounded-4 mb-4" alt="{{ article.titre }}" style="max-height: 400px; object-fit: cover; width: 100%;">
+            {% else %}
+                <div class="bg-light rounded-4 mb-4 d-flex align-items-center justify-content-center" style="height: 300px;">
+                    <i class="fas fa-file-alt fa-5x text-secondary opacity-50"></i>
+                </div>
+            {% endif %}
+
+            <!-- Article Content -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-5">
+                    <div class="article-content" style="line-height: 1.8; font-size: 1.05rem;">
+                        {{ article.contenu|nl2br }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Article Stats & Actions -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-2">
+                                <i class="fas fa-eye"></i> Vues
+                            </div>
+                            <h5 class="fw-bold mb-0">{{ article.nbVues }}</h5>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-2">
+                                <i class="fas fa-heart text-danger"></i> Likes
+                            </div>
+                            <h5 class="fw-bold mb-0">{{ article.likes|length }}</h5>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-2">
+                                <i class="fas fa-comment"></i> Commentaires
+                            </div>
+                            <h5 class="fw-bold mb-0" id="likeCount">{{ article.likes|length }}</h5>
+                        </div>
+                        <div class="col-md-3">
+                            {% if app.user %}
+                                <form method="post" action="{{ path('app_forum_article_like', {id: article.id}) }}" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('like_article') }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">
+                                        <i class="fas fa-heart"></i> Aimer
+                                    </button>
+                                </form>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn btn-outline-danger btn-sm rounded-pill">
+                                    <i class="fas fa-heart"></i> Se connecter
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            {% if article.tags|length > 0 %}
+                <div class="mb-4">
+                    {% for tag in article.tags %}
+                        <a href="{{ path('app_forum_tag', {id: tag.id}) }}" class="badge bg-secondary me-2 mb-2">
+                            #{{ tag.nom }}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Comments Section -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-transparent border-bottom p-4">
+                    <h5 class="fw-bold mb-0">
+                        <i class="fas fa-comments me-2"></i>Commentaires ({{ article.comments|length }})
+                    </h5>
+                </div>
+
+                <!-- Comments List -->
+                <div class="card-body p-4">
+                    {% if article.comments|length > 0 %}
+                        <div class="comments-list">
+                            {% for comment in article.comments %}
+                                <div class="mb-4 pb-4 border-bottom">
+                                    <div class="d-flex align-items-start mb-3">
+                                        <div class="bg-light rounded-circle p-3 me-3" style="width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="fw-bold mb-1">
+                                                {% if comment.utilisateur %}
+                                                    {{ comment.utilisateur.username }}
+                                                {% else %}
+                                                    Anonyme
+                                                {% endif %}
+                                            </h6>
+                                            <small class="text-muted">{{ comment.dateCreation|date('d/m/Y H:i') }}</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0 text-muted">{{ comment.contenu }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-4">
+                            <i class="fas fa-comments fa-2x opacity-50 mb-2"></i>
+                            <br>Aucun commentaire pour le moment. Sois le premier à commenter !
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Add Comment Form -->
+            {% if app.user %}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-transparent border-bottom p-4">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-pen me-2"></i>Ajouter un commentaire
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        {{ form_start(commentForm) }}
+                            {{ form_errors(commentForm) }}
+                            <div class="mb-3">
+                                {{ form_widget(commentForm.contenu, {
+                                    'attr': {
+                                        'class': 'form-control rounded-3',
+                                        'rows': 5,
+                                        'placeholder': 'Écris ton commentaire...'
+                                    }
+                                }) }}
+                                {{ form_errors(commentForm.contenu) }}
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-pill">
+                                <i class="fas fa-paper-plane me-2"></i>Ajouter mon commentaire
+                            </button>
+                        {{ form_end(commentForm) }}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info rounded-4" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Pour commenter, tu dois être connecté.</strong>
+                    <a href="{{ path('app_login') }}" class="alert-link">Se connecter</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Article Info Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4 sticky-top" style="top: 20px;">
+                <div class="card-body p-4">
+                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Informations</h6>
+                    
+                    {% if article.specialite %}
+                        <div class="mb-3">
+                            <small class="text-muted">Spécialité</small>
+                            <div class="fw-bold">{{ article.specialite.nom }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if article.auteur %}
+                        <div class="mb-3">
+                            <small class="text-muted">Auteur</small>
+                            <div class="fw-bold">Dr. {{ article.auteur.user.username }}</div>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <small class="text-muted">Statut</small>
+                        <div>
+                            <span class="badge bg-{{ article.statut == 'publie' ? 'success' : (article.statut == 'brouillon' ? 'warning' : 'secondary') }}">
+                                {{ article.statut }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-3 border-top">
+                        <small class="text-muted">Publié le</small>
+                        <div class="fw-bold">{{ article.dateCreation|date('d M Y') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .article-content {
+        color: #333;
+        word-break: break-word;
+    }
+
+    .sticky-top {
+        z-index: 10;
+    }
+
+    .comments-list .border-bottom:last-child {
+        border-bottom: none !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Forum - Articles{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="fw-bold mb-4">📚 Forum Médical - Articles</h1>
+            
+            <!-- Filtres et Recherche -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <form method="get" action="{{ path('app_forum_index') }}" class="row g-3 align-items-end">
+                        <!-- Recherche -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Rechercher</label>
+                            <input type="text" name="q" class="form-control rounded-pill" 
+                                   placeholder="Titre ou contenu..." value="{{ query|default('') }}">
+                        </div>
+                        
+                        <!-- Spécialité -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Spécialité</label>
+                            <select name="specialite" class="form-select rounded-pill">
+                                <option value="">Toutes les spécialités</option>
+                                {% for spec in specialites %}
+                                    <option value="{{ spec.id }}" 
+                                            {% if selectedSpecialite and selectedSpecialite.id == spec.id %}selected{% endif %}>
+                                        {{ spec.nom }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Tri -->
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Trier par</label>
+                            <select name="sort" class="form-select rounded-pill">
+                                <option value="date" {% if sortBy == 'date' %}selected{% endif %}>Plus récent</option>
+                                <option value="vues" {% if sortBy == 'vues' %}selected{% endif %}>Plus consulté</option>
+                                <option value="titre" {% if sortBy == 'titre' %}selected{% endif %}>Titre (A-Z)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                                🔍 Chercher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Articles -->
+    {% if articles|length > 0 %}
+        <div class="row g-4">
+            {% for article in articles %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 transition-all hover-lift">
+                        <!-- Image -->
+                        {% if article.image %}
+                            <img src="/uploads/articles/{{ article.image }}" class="card-img-top rounded-top" 
+                                 alt="{{ article.titre }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded-top" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-file-alt fa-3x text-secondary"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column">
+                            <!-- Spécialité Badge -->
+                            {% if article.specialite %}
+                                <span class="badge bg-info mb-2" style="width: fit-content;">
+                                    {{ article.specialite.nom }}
+                                </span>
+                            {% endif %}
+                            
+                            <!-- Titre -->
+                            <h5 class="card-title fw-bold mb-2">{{ article.titre }}</h5>
+                            
+                            <!-- Auteur -->
+                            <small class="text-muted mb-3">
+                                <i class="fas fa-user-md me-1"></i>
+                                {% if article.auteur %}Par Dr. {{ article.auteur.user.username }}{% else %}Par Admin{% endif %}
+                            </small>
+                            
+                            <!-- Extrait -->
+                            <p class="card-text text-muted mb-3" style="font-size: 0.95rem;">
+                                {{ article.contenu|slice(0, 100) }}{% if article.contenu|length > 100 %}...{% endif %}
+                            </p>
+                            
+                            <!-- Métadonnées -->
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top text-muted small">
+                                <span><i class="fas fa-eye me-1"></i>{{ article.nbVues }} vues</span>
+                                <span><i class="fas fa-comment me-1"></i>{{ article.comments|length }} commentaires</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bouton Lire -->
+                        <div class="card-footer bg-white border-0 p-3 text-center">
+                            <a href="{{ path('app_forum_article_show', {id: article.id}) }}" 
+                               class="btn btn-outline-primary btn-sm rounded-pill w-100">
+                                Lire l'article →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center py-5" role="alert">
+            <i class="fas fa-inbox fa-3x mb-3"></i>
+            <h4 class="mt-3">Aucun article trouvé</h4>
+            <p class="text-muted">Revenez bientôt pour voir de nouveaux articles !</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Styles supplémentaires -->
+<style>
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock %}

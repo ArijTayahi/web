@@ -56,8 +56,7 @@ class Article
     private ?string $statut = 'brouillon';
 
     #[ORM\ManyToOne(targetEntity: Doctor::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: "L'auteur est obligatoire")]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Doctor $auteur = null;
 
     #[ORM\ManyToOne(inversedBy: 'articles')]

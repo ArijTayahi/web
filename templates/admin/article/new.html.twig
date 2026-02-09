@@ -12,6 +12,17 @@
 
             <div class="card">
                 <div class="card-body">
+                    {% if form.vars.errors|length > 0 %}
+                        <div class="alert alert-danger mb-4">
+                            <h5>Erreurs du formulaire:</h5>
+                            <ul>
+                                {% for error in form.vars.errors %}
+                                    <li>{{ error.message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
                     {{ form_start(form) }}
                         {{ form_row(form.titre) }}
                         {{ form_row(form.contenu) }}
