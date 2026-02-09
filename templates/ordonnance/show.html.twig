@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ordonnance {{ ordonnance.numeroOrdonnance }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">💊 Ordonnance {{ ordonnance.numeroOrdonnance }}</h4>
+            <a href="{{ path('app_ordonnance_pdf', {id: ordonnance.id}) }}" class="btn btn-light btn-sm" target="_blank">
+                📄 Télécharger PDF
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p><strong>Médecin :</strong> Dr. {{ ordonnance.consultation.medecin.username }}</p>
+                    <p><strong>Patient :</strong> {{ ordonnance.consultation.patient.username }}</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p><strong>Date d'émission :</strong> {{ ordonnance.dateEmission|date('d/m/Y') }}</p>
+                    {% if ordonnance.dateValidite %}
+                        <p><strong>Valide jusqu'au :</strong> {{ ordonnance.dateValidite|date('d/m/Y') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if ordonnance.qrCode %}
+                <div class="text-center mb-4">
+                    <img src="{{ asset(ordonnance.qrCode) }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                    <p class="text-muted small">QR Code pour vérification en pharmacie</p>
+                </div>
+            {% endif %}
+
+            <h5 class="mb-3">Médicaments prescrits</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Médicament</th>
+                            <th>Dosage</th>
+                            <th>Quantité</th>
+                            <th>Durée</th>
+                            <th>Instructions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in ordonnance.lignes %}
+                            <tr>
+                                <td>{{ ligne.nomMedicament }}</td>
+                                <td>{{ ligne.dosage }}</td>
+                                <td>{{ ligne.quantite }}</td>
+                                <td>{{ ligne.dureeTraitement }}</td>
+                                <td>{{ ligne.instructions ?? '-' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if ordonnance.instructions %}
+                <div class="alert alert-info mt-3">
+                    <strong>Instructions générales :</strong><br>
+                    {{ ordonnance.instructions }}
+                </div>
+            {% endif %}
+
+            <hr>
+
+            <a href="{{ path('app_consultation_show', {id: ordonnance.consultation.id}) }}" class="btn btn-outline-primary">
+                ← Retour à la consultation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

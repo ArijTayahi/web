@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Facture {{ facture.numeroFacture }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .header { text-align: center; border-bottom: 3px solid #198754; padding-bottom: 15px; margin-bottom: 25px; }
+        .header h1 { margin: 0; color: #198754; }
+        .info p { margin: 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; }
+        th { background: #f8f9fa; }
+        .total { margin-top: 20px; text-align: right; font-size: 16px; }
+        .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧾 FACTURE MÉDICALE</h1>
+        <p><strong>{{ facture.numeroFacture }}</strong></p>
+    </div>
+
+    <div class="info">
+        <p><strong>Date :</strong> {{ facture.dateEmission|date('d/m/Y H:i') }}</p>
+        <p><strong>Patient :</strong> {{ facture.paiement.patient.username }} ({{ facture.paiement.patient.email }})</p>
+        <p><strong>Consultation :</strong> #{{ facture.paiement.consultation.id }}</p>
+        <p><strong>Médecin :</strong> Dr. {{ facture.paiement.consultation.medecin.username }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Désignation</th>
+                <th>Montant</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Paiement consultation médicale</td>
+                <td>{{ facture.montant }} DT</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="total">
+        <strong>Total :</strong> {{ facture.montant }} DT
+    </div>
+
+    <div class="footer">
+        <p>MediSmart - Plateforme de télémédecine</p>
+        <p>Facture générée automatiquement après paiement</p>
+    </div>
+</body>
+</html>

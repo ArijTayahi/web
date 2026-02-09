@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}RendezVous{% endblock %}
+
+{% block body %}
+    <h1>RendezVous</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ rendez_vou.id }}</td>
+            </tr>
+            <tr>
+                <th>AppointmentDateTime</th>
+                <td>{{ rendez_vou.appointmentDateTime ? rendez_vou.appointmentDateTime|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Duration</th>
+                <td>{{ rendez_vou.duration }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ rendez_vou.status }}</td>
+            </tr>
+            <tr>
+                <th>ConsultationType</th>
+                <td>{{ rendez_vou.consultationType }}</td>
+            </tr>
+            <tr>
+                <th>Reason</th>
+                <td>{{ rendez_vou.reason }}</td>
+            </tr>
+            <tr>
+                <th>Notes</th>
+                <td>{{ rendez_vou.notes }}</td>
+            </tr>
+            <tr>
+                <th>ReminderSent</th>
+                <td>{{ rendez_vou.reminderSent ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ rendez_vou.createdAt ? rendez_vou.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ rendez_vou.updatedAt ? rendez_vou.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>CancellationRisk</th>
+                <td>{{ rendez_vou.cancellationRisk }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_rendez_vous_index') }}">back to list</a>
+
+    <a href="{{ path('app_rendez_vous_edit', {'id': rendez_vou.id}) }}">edit</a>
+
+    {{ include('rendez_vous/_delete_form.html.twig') }}
+{% endblock %}

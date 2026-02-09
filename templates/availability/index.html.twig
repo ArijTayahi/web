@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Availability index{% endblock %}
+
+{% block body %}
+    <h1>Availability index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DayOfWeek</th>
+                <th>StartTime</th>
+                <th>EndTime</th>
+                <th>Recurring</th>
+                <th>StartDate</th>
+                <th>EndDate</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for availability in availabilities %}
+            <tr>
+                <td>{{ availability.id }}</td>
+                <td>{{ availability.dayOfWeek }}</td>
+                <td>{{ availability.startTime ? availability.startTime|date('H:i:s') : '' }}</td>
+                <td>{{ availability.endTime ? availability.endTime|date('H:i:s') : '' }}</td>
+                <td>{{ availability.recurring ? 'Yes' : 'No' }}</td>
+                <td>{{ availability.startDate ? availability.startDate|date('Y-m-d') : '' }}</td>
+                <td>{{ availability.endDate ? availability.endDate|date('Y-m-d') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_availability_show', {'id': availability.id}) }}">show</a>
+                    <a href="{{ path('app_availability_edit', {'id': availability.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_availability_new') }}">Create new</a>
+{% endblock %}

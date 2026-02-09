@@ -1,0 +1,233 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Consultation #{{ consultation.id }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">📋 Consultation #{{ consultation.id }}</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Timeline Status -->
+                    <div class="mb-4">
+                        <h5>Statut de la consultation</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-center">
+                                <div class="badge {{ consultation.status == 'EN_ATTENTE' ? 'bg-warning' : 'bg-secondary' }} p-3 rounded-circle">
+                                    🕐
+                                </div>
+                                <p class="mt-2 small">En attente</p>
+                            </div>
+                            <div class="flex-grow-1 mx-3" style="height: 2px; background: #dee2e6;"></div>
+                            <div class="text-center">
+                                <div class="badge {{ consultation.status == 'EN_COURS' ? 'bg-primary' : 'bg-secondary' }} p-3 rounded-circle">
+                                    🩺
+                                </div>
+                                <p class="mt-2 small">En cours</p>
+                            </div>
+                            <div class="flex-grow-1 mx-3" style="height: 2px; background: #dee2e6;"></div>
+                            <div class="text-center">
+                                <div class="badge {{ consultation.status == 'TERMINEE' ? 'bg-success' : 'bg-secondary' }} p-3 rounded-circle">
+                                    ✅
+                                </div>
+                                <p class="mt-2 small">Terminée</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Informations -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Patient :</strong> {{ consultation.patient.username }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Médecin :</strong> Dr. {{ consultation.medecin.username }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Type :</strong>
+                            {% if consultation.type == 'EN_LIGNE' %}
+                                <span class="badge bg-info">📹 En ligne</span>
+                            {% else %}
+                                <span class="badge bg-secondary">🏥 Cabinet</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Date :</strong> {{ consultation.dateDebut|date('d/m/Y H:i') }}
+                        </div>
+                    </div>
+
+                    {% if consultation.notes %}
+                        <div class="mb-3">
+                            <strong>Notes du patient :</strong>
+                            <p class="text-muted">{{ consultation.notes }}</p>
+                        </div>
+                    {% endif %}
+
+                    {% if consultation.diagnostic %}
+                        <div class="mb-3">
+                            <strong>Diagnostic :</strong>
+                            <p class="text-muted">{{ consultation.diagnostic }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Actions Médecin -->
+                    {% if is_granted('ROLE_PHYSICIAN') and app.user.id == consultation.medecin.id %}
+                        {% if consultation.status == 'EN_ATTENTE' %}
+                            <form method="post" action="{{ path('app_consultation_start', {id: consultation.id}) }}" class="d-inline">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('start_consultation_' ~ consultation.id) }}">
+                                <button type="submit" class="btn btn-success">
+                                    ▶️ Démarrer la consultation
+                                </button>
+                            </form>
+
+                            <form method="post" action="{{ path('app_consultation_annuler', {id: consultation.id}) }}" class="d-inline">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token('annuler_consultation_' ~ consultation.id) }}">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Annuler cette consultation ?')">
+                                    ❌ Annuler
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if consultation.status == 'EN_COURS' %}
+                            <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#terminerModal">
+                                🏁 Terminer la consultation
+                            </button>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Actions Patient -->
+                    {% if is_granted('ROLE_PATIENT') and app.user.id == consultation.patient.id %}
+                        {% if consultation.status == 'TERMINEE' and not consultation.satisfaction %}
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#evaluerModal">
+                                ⭐ Évaluer la consultation
+                            </button>
+                        {% endif %}
+
+                        {% if consultation.status == 'TERMINEE' and consultation.satisfaction %}
+                            <div class="alert alert-success">
+                                ⭐ Vous avez évalué cette consultation : {{ consultation.satisfaction.score }}/5
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Ordonnance -->
+                    {% if consultation.ordonnance %}
+                        <hr>
+                        <a href="{{ path('app_ordonnance_show', {id: consultation.ordonnance.id}) }}" class="btn btn-outline-primary">
+                            📄 Voir l'ordonnance
+                        </a>
+                    {% endif %}
+
+                    <!-- Paiement -->
+                    {% if consultation.paiement %}
+                        <a href="{{ path('app_paiement_show', {id: consultation.paiement.id}) }}" class="btn btn-outline-success">
+                            💳 Voir le paiement
+                        </a>
+                    {% elseif consultation.status == 'TERMINEE' and is_granted('ROLE_PATIENT') and app.user.id == consultation.patient.id %}
+                        <a href="{{ path('app_paiement_consultation', {id: consultation.id}) }}" class="btn btn-success">
+                            💳 Payer la consultation
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        {% if consultation.statistiques %}
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">📊 Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Durée :</strong> {{ consultation.statistiques.duree }} min</p>
+                    <p><strong>Qualité :</strong> {{ consultation.statistiques.qualiteConnexion }}</p>
+                    <p><strong>Messages :</strong> {{ consultation.statistiques.nbMessages }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Terminer -->
+<div class="modal fade" id="terminerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{{ path('app_consultation_terminer', {id: consultation.id}) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('terminer_consultation_' ~ consultation.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">🏁 Terminer la consultation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="diagnostic" class="form-label">Diagnostic *</label>
+                        <textarea name="diagnostic" id="diagnostic" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea name="notes" id="notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Terminer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Évaluer -->
+<div class="modal fade" id="evaluerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{{ path('app_consultation_evaluer', {id: consultation.id}) }}">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('evaluer_consultation_' ~ consultation.id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">⭐ Évaluer la consultation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Votre note *</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="score" id="score1" value="1" required>
+                            <label class="btn btn-outline-warning" for="score1">⭐</label>
+
+                            <input type="radio" class="btn-check" name="score" id="score2" value="2">
+                            <label class="btn btn-outline-warning" for="score2">⭐⭐</label>
+
+                            <input type="radio" class="btn-check" name="score" id="score3" value="3">
+                            <label class="btn btn-outline-warning" for="score3">⭐⭐⭐</label>
+
+                            <input type="radio" class="btn-check" name="score" id="score4" value="4">
+                            <label class="btn btn-outline-warning" for="score4">⭐⭐⭐⭐</label>
+
+                            <input type="radio" class="btn-check" name="score" id="score5" value="5">
+                            <label class="btn btn-outline-warning" for="score5">⭐⭐⭐⭐⭐</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="commentaire" class="form-label">Commentaire</label>
+                        <textarea name="commentaire" id="commentaire" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
