@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Entity\RendezVous;
+use App\Entity\Availability;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -48,10 +50,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: Patient::class, cascade: ['persist', 'remove'])]
     private ?Patient $patient = null;
 
+    /**
+     * @var Collection<int, RendezVous>
+     */
+    #[ORM\OneToMany(targetEntity: RendezVous::class, mappedBy: 'doctor')]
+    private Collection $rendezVousAsDoctor;
+
+    /**
+     * @var Collection<int, RendezVous>
+     */
+    #[ORM\OneToMany(targetEntity: RendezVous::class, mappedBy: 'patient')]
+    private Collection $rendezVousAsPatient;
+
+    /**
+     * @var Collection<int, Availability>
+     */
+    #[ORM\OneToMany(targetEntity: Availability::class, mappedBy: 'doctor')]
+    private Collection $availabilities;
+
+    /**
+     * @var Collection<int, Availability>
+     */
+    #[ORM\OneToMany(targetEntity: Availability::class, mappedBy: 'doctor')]
+    private Collection $no;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
+        $this->rendezVousAsDoctor = new ArrayCollection();
+        $this->rendezVousAsPatient = new ArrayCollection();
+        $this->availabilities = new ArrayCollection();
+        $this->no = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -189,6 +219,126 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPatient(?Patient $patient): self
     {
         $this->patient = $patient;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RendezVous>
+     */
+    public function getRendezVousAsDoctor(): Collection
+    {
+        return $this->rendezVousAsDoctor;
+    }
+
+    public function addRendezVousAsDoctor(RendezVous $rendezVousAsDoctor): static
+    {
+        if (!$this->rendezVousAsDoctor->contains($rendezVousAsDoctor)) {
+            $this->rendezVousAsDoctor->add($rendezVousAsDoctor);
+            $rendezVousAsDoctor->setDoctor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRendezVousAsDoctor(RendezVous $rendezVousAsDoctor): static
+    {
+        if ($this->rendezVousAsDoctor->removeElement($rendezVousAsDoctor)) {
+            // set the owning side to null (unless already changed)
+            if ($rendezVousAsDoctor->getDoctor() === $this) {
+                $rendezVousAsDoctor->setDoctor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RendezVous>
+     */
+    public function getRendezVousAsPatient(): Collection
+    {
+        return $this->rendezVousAsPatient;
+    }
+
+    public function addRendezVousAsPatient(RendezVous $rendezVousAsPatient): static
+    {
+        if (!$this->rendezVousAsPatient->contains($rendezVousAsPatient)) {
+            $this->rendezVousAsPatient->add($rendezVousAsPatient);
+            $rendezVousAsPatient->setPatient($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRendezVousAsPatient(RendezVous $rendezVousAsPatient): static
+    {
+        if ($this->rendezVousAsPatient->removeElement($rendezVousAsPatient)) {
+            // set the owning side to null (unless already changed)
+            if ($rendezVousAsPatient->getPatient() === $this) {
+                $rendezVousAsPatient->setPatient(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Availability>
+     */
+    public function getAvailabilities(): Collection
+    {
+        return $this->availabilities;
+    }
+
+    public function addAvailability(Availability $availability): static
+    {
+        if (!$this->availabilities->contains($availability)) {
+            $this->availabilities->add($availability);
+            $availability->setDoctor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvailability(Availability $availability): static
+    {
+        if ($this->availabilities->removeElement($availability)) {
+            // set the owning side to null (unless already changed)
+            if ($availability->getDoctor() === $this) {
+                $availability->setDoctor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Availability>
+     */
+    public function getNo(): Collection
+    {
+        return $this->no;
+    }
+
+    public function addNo(Availability $no): static
+    {
+        if (!$this->no->contains($no)) {
+            $this->no->add($no);
+            $no->setDoctor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNo(Availability $no): static
+    {
+        if ($this->no->removeElement($no)) {
+            // set the owning side to null (unless already changed)
+            if ($no->getDoctor() === $this) {
+                $no->setDoctor(null);
+            }
+        }
 
         return $this;
     }
