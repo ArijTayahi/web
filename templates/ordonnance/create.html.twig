@@ -1,0 +1,118 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une ordonnance{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">💊 Créer une ordonnance</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Patient :</strong> {{ consultation.patient.username }}</p>
+            <p><strong>Consultation :</strong> #{{ consultation.id }}</p>
+
+            <hr>
+
+            <form method="post" id="ordonnanceForm">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('create_ordonnance_' ~ consultation.id) }}">
+
+                <div class="mb-3">
+                    <label for="instructions" class="form-label">Instructions générales</label>
+                    <textarea name="instructions" id="instructions" class="form-control" rows="3" placeholder="Instructions pour le patient..."></textarea>
+                </div>
+
+                <h5 class="mt-4">Médicaments</h5>
+                <div id="medicamentsContainer">
+                    <div class="card mb-3 medicament-item">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Nom du médicament *</label>
+                                    <input type="text" name="medicaments[0][nom]" class="form-control" required>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Dosage *</label>
+                                    <input type="text" name="medicaments[0][dosage]" class="form-control" placeholder="Ex: 500mg" required>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Quantité *</label>
+                                    <input type="number" name="medicaments[0][quantite]" class="form-control" min="1" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Durée du traitement *</label>
+                                    <input type="text" name="medicaments[0][duree]" class="form-control" placeholder="Ex: 7 jours" required>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Instructions</label>
+                                    <input type="text" name="medicaments[0][instructions]" class="form-control" placeholder="Ex: 3 fois par jour">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-outline-primary mb-3" onclick="ajouterMedicament()">
+                    ➕ Ajouter un médicament
+                </button>
+
+                <hr>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        ✅ Créer l'ordonnance
+                    </button>
+                    <a href="{{ path('app_consultation_show', {id: consultation.id}) }}" class="btn btn-outline-secondary">
+                        Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let medicamentCount = 1;
+
+function ajouterMedicament() {
+    const container = document.getElementById('medicamentsContainer');
+    const newCard = document.createElement('div');
+    newCard.className = 'card mb-3 medicament-item';
+    newCard.innerHTML = `
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Nom du médicament *</label>
+                    <input type="text" name="medicaments[${medicamentCount}][nom]" class="form-control" required>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">Dosage *</label>
+                    <input type="text" name="medicaments[${medicamentCount}][dosage]" class="form-control" placeholder="Ex: 500mg" required>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <label class="form-label">Quantité *</label>
+                    <input type="number" name="medicaments[${medicamentCount}][quantite]" class="form-control" min="1" required>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Durée du traitement *</label>
+                    <input type="text" name="medicaments[${medicamentCount}][duree]" class="form-control" placeholder="Ex: 7 jours" required>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="form-label">Instructions</label>
+                    <input type="text" name="medicaments[${medicamentCount}][instructions]" class="form-control" placeholder="Ex: 3 fois par jour">
+                </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger mt-2" onclick="this.closest('.medicament-item').remove()">
+                🗑️ Supprimer
+            </button>
+        </div>
+    `;
+    container.appendChild(newCard);
+    medicamentCount++;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement #{{ paiement.id }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">💳 Paiement #{{ paiement.id }}</h4>
+
+            {% if paiement.facture %}
+                <a class="btn btn-light btn-sm" target="_blank"
+                   href="{{ path('app_facture_pdf', {id: paiement.facture.id}) }}">
+                    🧾 Voir facture PDF
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <p><strong>Consultation :</strong> #{{ paiement.consultation.id }}</p>
+            <p><strong>Patient :</strong> {{ paiement.patient.username }}</p>
+            <p><strong>Montant :</strong> {{ paiement.montant }} DT</p>
+            <p><strong>Méthode :</strong> <span class="badge bg-dark">{{ paiement.methode }}</span></p>
+
+            <p>
+                <strong>Status :</strong>
+                {% if paiement.status == 'PAYE' %}
+                    <span class="badge bg-success">PAYÉ</span>
+                {% elseif paiement.status == 'ECHEC' %}
+                    <span class="badge bg-danger">ÉCHEC</span>
+                {% else %}
+                    <span class="badge bg-warning">EN ATTENTE</span>
+                {% endif %}
+            </p>
+
+            <hr>
+
+            <h5>🔐 Transactions (logs)</h5>
+            {% if paiement.transactions is empty %}
+                <div class="alert alert-info">Aucune transaction.</div>
+            {% else %}
+                <ul class="list-group">
+                    {% for tx in paiement.transactions %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ tx.reference }}</strong>
+                                <div class="text-muted small">{{ tx.createdAt|date('d/m/Y H:i') }}</div>
+                                {% if tx.message %}
+                                    <div class="small">{{ tx.message }}</div>
+                                {% endif %}
+                            </div>
+                            <span class="badge bg-primary">{{ tx.status }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <hr>
+
+            <a class="btn btn-outline-primary"
+               href="{{ path('app_consultation_show', {id: paiement.consultation.id}) }}">
+                ← Retour à la consultation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
