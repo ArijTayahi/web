@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visio - {{ session.roomId }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0">📹 Visioconsultation</h4>
+                <small class="text-muted">Room: {{ session.roomId }}</small>
+            </div>
+
+            {% if isMedecin %}
+                <form method="post" action="{{ path('app_visio_end', {roomId: session.roomId}) }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('end_visio_' ~ session.roomId) }}">
+                    <button class="btn btn-danger btn-sm">⛔ Terminer la visio</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <!-- Fake/Simu video zone -->
+                <div class="col-md-8">
+                    <div class="border rounded p-3 bg-light" style="min-height: 350px;">
+                        <h5 class="mb-3">🎥 Flux vidéo (simulation)</h5>
+                        <div class="d-flex gap-3">
+                            <div class="flex-fill border rounded bg-white p-3 text-center" style="height: 250px;">
+                                <p class="text-muted mb-0">Caméra Patient</p>
+                            </div>
+                            <div class="flex-fill border rounded bg-white p-3 text-center" style="height: 250px;">
+                                <p class="text-muted mb-0">Caméra Médecin</p>
+                            </div>
+                        </div>
+                        <p class="mt-3 text-muted small">
+                            💡 Ici tu peux brancher WebRTC plus tard (PeerJS / Agora / Twilio).
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Chat -->
+                <div class="col-md-4">
+                    <div class="border rounded p-3" style="height: 350px; display:flex; flex-direction:column;">
+                        <h5 class="mb-2">💬 Chat</h5>
+
+                        <div id="chatBox" class="border rounded p-2 mb-2 bg-light"
+                             style="flex:1; overflow-y:auto;">
+                            <div class="text-muted small">Chargement des messages...</div>
+                        </div>
+
+                        <form id="chatForm">
+                            <div class="input-group">
+                                <input type="text" id="chatMessage" class="form-control" placeholder="Votre message..." required>
+                                <button class="btn btn-primary" type="submit">Envoyer</button>
+                            </div>
+                        </form>
+
+                        <small class="text-muted mt-2">
+                            Les messages sont enregistrés en base (traçabilité).
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <a class="btn btn-outline-secondary"
+               href="{{ path('app_consultation_show', {id: consultation.id}) }}">
+                ← Retour à la consultation
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+const consultationId = {{ consultation.id }};
+
+function renderMessages(messages) {
+    const box = document.getElementById('chatBox');
+    box.innerHTML = '';
+    if (!messages.length) {
+        box.innerHTML = '<div class="text-muted small">Aucun message.</div>';
+        return;
+    }
+    messages.forEach(m => {
+        const align = (m.senderRole === 'MEDECIN') ? 'text-end' : 'text-start';
+        const badge = (m.senderRole === 'MEDECIN') ? 'bg-primary' : 'bg-success';
+        box.innerHTML += `
+            <div class="${align} mb-2">
+                <span class="badge ${badge}">${m.senderRole}</span>
+                <div class="d-inline-block bg-white border rounded px-2 py-1 ms-1 me-1">
+                    ${escapeHtml(m.message)}
+                </div>
+                <small class="text-muted">${m.createdAt}</small>
+            </div>
+        `;
+    });
+    box.scrollTop = box.scrollHeight;
+}
+
+function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, function(m) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]);
+    });
+}
+
+async function fetchMessages() {
+    const res = await fetch("{{ path('app_chat_messages', {consultationId: consultation.id}) }}");
+    const data = await res.json();
+    if (data.messages) renderMessages(data.messages);
+}
+
+document.getElementById('chatForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('chatMessage');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    const formData = new FormData();
+    formData.append('message', msg);
+
+    const res = await fetch("{{ path('app_chat_send', {consultationId: consultation.id}) }}", {
+        method: 'POST',
+        body: formData
+    });
+
+    const data = await res.json();
+    if (data.status === 'ok') {
+        input.value = '';
+        fetchMessages();
+    }
+});
+
+fetchMessages();
+setInterval(fetchMessages, 3000);
+</script>
+{% endblock %}

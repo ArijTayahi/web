@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Salle d'attente{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow text-center">
+                <div class="card-body p-5">
+                    <h2 class="mb-4">🪑 Salle d'attente virtuelle</h2>
+                    
+                    <div class="spinner-border text-primary mb-4" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+
+                    <p class="lead">Veuillez patienter...</p>
+                    <p class="text-muted">Le médecin va vous rejoindre dans quelques instants.</p>
+
+                    <hr class="my-4">
+
+                    <p><strong>Médecin :</strong> Dr. {{ consultation.medecin.username }}</p>
+                    <p><strong>Type :</strong> Consultation en ligne</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Vérifier toutes les 3 secondes si la consultation a démarré
+setInterval(function() {
+    fetch('{{ path('app_consultation_show', {id: consultation.id}) }}')
+        .then(response => response.text())
+        .then(html => {
+            // Si le statut a changé, rediriger
+            if (!html.includes('EN_ATTENTE')) {
+                window.location.href = '{{ path('app_consultation_show', {id: consultation.id}) }}';
+            }
+        });
+}, 3000);
+</script>
+{% endblock %}
