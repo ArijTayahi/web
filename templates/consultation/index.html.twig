@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Consultations{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Mes Consultations</h1>
+
+    <a href="{{ path('app_consultation_new') }}" class="btn btn-primary mb-3">Nouvelle Consultation</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Médecin</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for consultation in consultations %}
+            <tr>
+                <td>{{ consultation.id }}</td>
+                <td>{{ consultation.doctor.user.username }}</td>
+                <td>{{ consultation.consultationDate|date('d/m/Y H:i') }}</td>
+                <td>{{ consultation.type }}</td>
+                <td>{{ consultation.status }}</td>
+                <td>
+                    <a href="{{ path('app_consultation_show', {'id': consultation.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                    {% if consultation.status == 'en attente' %}
+                        <a href="{{ path('app_consultation_edit', {'id': consultation.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        <form method="post" action="{{ path('app_consultation_cancel', {'id': consultation.id}) }}" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ consultation.id) }}">
+                            <button class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler ?')">Annuler</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">Aucune consultation trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

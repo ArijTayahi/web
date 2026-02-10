@@ -1,0 +1,59 @@
+# PUSH TO NEW REPOSITORY - Instructions
+
+The terminal is currently stuck with a Vi/Vim merge editor process. Follow these steps to push to the new repo:
+
+## Step 1: Kill the Stuck Process
+Open Task Manager (Ctrl+Shift+Esc) and kill any hung git/vim/python processes, OR:
+```powershell
+taskkill /F /IM vim.exe
+taskkill /F /IM git.exe  
+```
+
+## Step 2: Open New PowerShell & Execute Push
+
+```powershell
+# Navigate to project
+cd C:\xampp\htdocs\eya
+
+# Abort any pending merge
+git merge --abort 2>$null
+
+# Remove old remote
+git remote remove target 2>$null
+
+# Add new repository as remote
+git remote add medtime https://github.com/eyaarg/MedTime.git
+
+# Push all commits with force
+git push medtime main --force
+```
+
+## Step 3: Verify Push
+Check: https://github.com/eyaarg/MedTime/commits/main
+
+You should see your commit: "Fix asset loading, add database fixtures, and demo documentation"
+
+---
+
+## What Gets Pushed:
+- ✅ All 15+ modified and new files
+- ✅ Fixtures (15 demo users)
+- ✅ Fixed templates (CDN + AssetMapper)
+- ✅ Migrations (nullable roles fix)
+- ✅ Documentation guides
+- ✅ CSS validation script
+- ✅ .htaccess for Apache
+
+## If Push Fails:
+Try this alternative (creates fresh clone):
+```powershell
+cd C:\xampp\htdocs
+git clone https://github.com/akramtoo/eya.git eya-clean
+cd eya-clean
+git remote set-url origin https://github.com/eyaarg/MedTime.git
+git push origin main --force
+```
+
+---
+
+**All your work is committed and safe. This is just the final push step.**

@@ -1,0 +1,294 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Overview - Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Section -->
+<div class="d-flex justify-content-between align-items-end mb-5">
+    <div>
+        <h2 class="fw-bold text-dark mb-1">Platform Overview</h2>
+        <p class="text-muted mb-0">Welcome back, {{ app.user ? app.user.username : 'Admin' }}. Here's what's happening today.</p>
+    </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-ghost rounded-pill px-4 fw-medium" href="{{ path('app_admin_users_export') }}"><i class="fas fa-download me-2"></i>Export Report</a>
+            <a class="btn btn-primary rounded-pill px-4 fw-medium shadow-lg btn-royal" href="{{ path('app_admin_users') }}"><i class="fas fa-plus me-2"></i>Add User</a>
+        </div>
+</div>
+
+<!-- Stat Cards Row -->
+<div class="row g-4 mb-5">
+    <!-- Total Users -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden text-white stat-hero">
+            <div class="card-body p-4 position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="p-2 rounded-3 bg-white bg-opacity-25 backdrop-blur">
+                        <i class="fas fa-users fs-4 text-white"></i>
+                    </div>
+                    <span class="badge bg-white text-primary rounded-pill fw-bold">+12%</span>
+                </div>
+                <h3 class="fw-bold mb-1">{{ totalUsers }}</h3>
+                <p class="mb-0 opacity-75 small">Total Active Users</p>
+                
+                <!-- Decorative Circle -->
+                <div class="position-absolute bg-white opacity-10 rounded-circle" style="width: 120px; height: 120px; top: -40px; right: -40px;"></div>
+                <div class="position-absolute bg-white opacity-10 rounded-circle" style="width: 80px; height: 80px; bottom: -20px; left: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Doctors -->
+    <div class="col-md-6 col-xl-3">
+         <div class="card border-0 shadow-sm rounded-4 h-100 glass-card hover-up transition-all">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                     <div class="p-2 rounded-3 bg-soft-blue text-royal">
+                        <i class="fas fa-heartbeat fs-4"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-1 text-dark">{{ verifiedDoctors }}</h3>
+                <p class="mb-0 text-muted small">Verified Doctors</p>
+                <div class="mt-3 pt-3 border-top border-light">
+                    <span class="text-royal small fw-bold"><i class="fas fa-arrow-up"></i> 5 new</span> <span class="text-muted small">this week</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 glass-card hover-up transition-all">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                     <div class="p-2 rounded-3 bg-soft-blue text-sky">
+                        <i class="fas fa-calendar-check fs-4"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold mb-1 text-dark">{{ totalAppointments }}</h3>
+                <p class="mb-0 text-muted small">Total Appointments</p>
+                <div class="mt-3 pt-3 border-top border-light">
+                     <span class="text-sky small fw-bold">85%</span> <span class="text-muted small">completion rate</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Verifications -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 glass-card hover-up transition-all">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                     <div class="p-2 rounded-3 bg-soft-blue text-navy">
+                        <i class="fas fa-exclamation-triangle fs-4"></i>
+                    </div>
+                    <span class="badge badge-navy rounded-pill">Action Needed</span>
+                </div>
+                <h3 class="fw-bold mb-1 text-dark">{{ pendingVerifications }}</h3>
+                <p class="mb-0 text-muted small">Pending Verifications</p>
+                 <div class="mt-3 pt-3 border-top border-light">
+                    <a href="{{ path('app_admin_doctor_verifications') }}" class="text-decoration-none small fw-bold text-navy">Review Now <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Section: Quick Actions & Trends -->
+<div class="row g-4">
+    <!-- Registration Trend Chart -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100 glass-card">
+            <div class="card-header bg-transparent border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">Registration Trends</h5>
+                    <p class="text-muted small mb-0">User growth over time</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm rounded-pill px-3 dropdown-toggle text-muted" type="button" data-bs-toggle="dropdown">
+                        Last 6 Months
+                    </button>
+                    <ul class="dropdown-menu border-0 shadow-sm rounded-3">
+                        <li><a class="dropdown-item" href="#">Last Year</a></li>
+                        <li><a class="dropdown-item" href="#">All Time</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <!-- CSS-only simple chart visualization -->
+                <div class="d-flex align-items-end justify-content-between h-100 gap-2" style="min-height: 250px;">
+                    <!-- Month 1 -->
+                    <div class="w-100 d-flex flex-column align-items-center">
+                        <div class="chart-bar chart-bar-1 rounded-top-3 w-100 position-relative group-hover" style="height: 40%; transition: height 1s;">
+                            <div class="position-absolute bottom-100 start-50 translate-middle-x mb-2 text-primary fw-bold small opacity-0 group-hover-show">40%</div>
+                        </div>
+                        <span class="text-muted small mt-2">Jan</span>
+                    </div>
+                    <!-- Month 2 -->
+                     <div class="w-100 d-flex flex-column align-items-center">
+                         <div class="chart-bar chart-bar-2 rounded-top-3 w-100" style="height: 55%;"></div>
+                        <span class="text-muted small mt-2">Feb</span>
+                    </div>
+                    <!-- Month 3 -->
+                     <div class="w-100 d-flex flex-column align-items-center">
+                         <div class="chart-bar chart-bar-3 rounded-top-3 w-100" style="height: 45%;"></div>
+                        <span class="text-muted small mt-2">Mar</span>
+                    </div>
+                    <!-- Month 4 -->
+                     <div class="w-100 d-flex flex-column align-items-center">
+                         <div class="chart-bar chart-bar-4 rounded-top-3 w-100" style="height: 70%;"></div>
+                        <span class="text-muted small mt-2">Apr</span>
+                    </div>
+                    <!-- Month 5 -->
+                     <div class="w-100 d-flex flex-column align-items-center">
+                         <div class="chart-bar chart-bar-5 rounded-top-3 w-100" style="height: 60%;"></div>
+                        <span class="text-muted small mt-2">May</span>
+                    </div>
+                     <!-- Month 6 -->
+                     <div class="w-100 d-flex flex-column align-items-center">
+                         <div class="chart-bar chart-bar-6 rounded-top-3 w-100 shadow-sm" style="height: 85%;"></div>
+                        <span class="fw-bold text-royal small mt-2">Jun</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Side -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 glass-card">
+            <div class="card-header bg-transparent border-0 py-4 px-4">
+                <h5 class="fw-bold mb-0 text-dark">Quick Actions</h5>
+                <p class="text-muted small mb-0">Common management tasks</p>
+            </div>
+            <div class="card-body px-4">
+                <div class="d-grid gap-3">
+                     <a href="{{ path('app_admin_users') }}" class="btn btn-light py-3 px-3 text-start rounded-3 d-flex align-items-center quick-action transition-all">
+                        <div class="bg-white p-2 rounded-circle shadow-sm text-royal me-3">
+                            <i class="fas fa-user-cog fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">User Management</h6>
+                            <small class="text-muted">Edit, ban, or verify users</small>
+                        </div>
+                        <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                     </a>
+
+                     <a href="{{ path('app_admin_appointments') }}" class="btn btn-light py-3 px-3 text-start rounded-3 d-flex align-items-center quick-action transition-all">
+                        <div class="bg-white p-2 rounded-circle shadow-sm text-sky me-3">
+                             <i class="fas fa-calendar-alt fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">Appointments</h6>
+                            <small class="text-muted">Review upcoming visits</small>
+                        </div>
+                         <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                     </a>
+
+                     <a href="{{ path('app_admin_settings') }}" class="btn btn-light py-3 px-3 text-start rounded-3 d-flex align-items-center quick-action transition-all">
+                        <div class="bg-white p-2 rounded-circle shadow-sm text-navy me-3">
+                             <i class="fas fa-sliders-h fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 text-dark">System Settings</h6>
+                            <small class="text-muted">Configure platform</small>
+                        </div>
+                         <i class="fas fa-chevron-right ms-auto text-muted"></i>
+                     </a>
+                </div>
+            </div>
+            <div class="card-footer bg-ghost border-0 py-3 text-center mx-4 mb-4 rounded-3">
+                <small class="text-muted d-block mb-2">Need to announce something?</small>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-bold">Create Announcement</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --ghost-white: #f5f7ff;
+        --royal-blue: #1d4ed8;
+        --sky-blue: #3b82f6;
+        --navy-blue: #0f172a;
+        --glass-border: rgba(59, 130, 246, 0.15);
+    }
+
+    .btn-ghost {
+        background: #ffffff;
+        border: 1px solid var(--glass-border);
+        color: var(--navy-blue);
+        box-shadow: 0 8px 24px -20px rgba(15, 23, 42, 0.35);
+    }
+
+    .btn-royal {
+        background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+        border: none;
+    }
+
+    .stat-hero {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+        position: relative;
+    }
+
+    .stat-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0px, rgba(255, 255, 255, 0.08) 2px, transparent 2px, transparent 8px);
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 20px 40px -30px rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(10px);
+    }
+
+    .bg-ghost { background-color: var(--ghost-white) !important; }
+    .bg-soft-blue { background-color: rgba(29, 78, 216, 0.12); }
+    .text-royal { color: var(--royal-blue) !important; }
+    .text-sky { color: var(--sky-blue) !important; }
+    .text-navy { color: var(--navy-blue) !important; }
+
+    .chart-bar {
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.75));
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-bar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0px, rgba(255, 255, 255, 0.25) 2px, transparent 2px, transparent 8px);
+        opacity: 0.5;
+    }
+
+    .chart-bar-6 {
+        background: linear-gradient(180deg, rgba(59, 130, 246, 0.35), rgba(29, 78, 216, 1));
+        box-shadow: 0 12px 30px -18px rgba(29, 78, 216, 0.7);
+    }
+
+    .badge-navy {
+        background: rgba(15, 23, 42, 0.08);
+        color: var(--navy-blue);
+        font-weight: 600;
+    }
+
+    .quick-action {
+        background: #ffffff;
+        border: 1px solid transparent;
+        box-shadow: 0 14px 26px -22px rgba(15, 23, 42, 0.3);
+    }
+
+    .quick-action:hover {
+        background-color: var(--ghost-white) !important;
+        border-color: var(--glass-border);
+    }
+    
+    .hover-up:hover { transform: translateY(-5px); }
+    .transition-all { transition: all 0.3s ease; }
+</style>
+{% endblock %}

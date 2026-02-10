@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Ordonnance{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Détails de l'Ordonnance</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ ordonnance.id }}</td>
+            </tr>
+            <tr>
+                <th>Consultation</th>
+                <td>{{ ordonnance.consultation.consultationDate|date('d/m/Y H:i') }}</td>
+            </tr>
+            <tr>
+                <th>Médecin</th>
+                <td>{{ ordonnance.doctor.user.username }}</td>
+            </tr>
+            <tr>
+                <th>Contenu</th>
+                <td>{{ ordonnance.content }}</td>
+            </tr>
+            <tr>
+                <th>Créé le</th>
+                <td>{{ ordonnance.createdAt|date('d/m/Y H:i') }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_ordonnance_doctor_index') }}" class="btn btn-secondary">Retour à la liste</a>
+</div>
+{% endblock %}

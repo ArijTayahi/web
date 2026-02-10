@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Consultations{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Consultations</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for consultation in consultations %}
+            <tr>
+                <td>{{ consultation.id }}</td>
+                <td>{{ consultation.patient.user.username }}</td>
+                <td>{{ consultation.consultationDate|date('d/m/Y H:i') }}</td>
+                <td>{{ consultation.type }}</td>
+                <td>{{ consultation.status }}</td>
+                <td>
+                    <form method="post" action="{{ path('app_consultation_change_status', {'id': consultation.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ consultation.id) }}">
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="">Changer Statut</option>
+                            <option value="confirmed">Confirmé</option>
+                            <option value="cancelled">Annulé</option>
+                        </select>
+                    </form>
+                    <a href="{{ path('app_ordonnance_new', {'consultationId': consultation.id}) }}" class="btn btn-sm btn-success">Créer Ordonnance</a>
+                    <a href="{{ path('app_consultation_edit', {'id': consultation.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                    <form method="post" action="{{ path('app_consultation_doctor_delete', {'id': consultation.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ consultation.id) }}">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">Aucune consultation trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

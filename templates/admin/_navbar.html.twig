@@ -1,0 +1,14 @@
+<div class="admin-topbar">
+    <div class="admin-search">
+        <i class="fas fa-search"></i>
+        <input type="text" class="form-control form-control-sm" placeholder="Search anything...">
+    </div>
+    <div class="admin-user">
+        <i class="fas fa-bell"></i>
+        <div class="ms-3 text-end">
+            <div class="fw-bold">{{ app.user ? app.user.username : 'Admin User' }}</div>
+            <small class="text-muted">Super Administrator</small>
+        </div>
+        <div class="admin-avatar ms-3">{{ app.user ? app.user.username|slice(0,1)|upper : 'A' }}</div>
+    </div>
+</div>

@@ -1,0 +1,307 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Patient Dashboard - MedTime{% endblock %}
+
+{% block body %}
+{# sidebar patient houni #}
+<div class="container-fluid" style="background-color: #f3f6f9; min-height: 100vh;">
+    <div class="row">
+        
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-white sidebar shadow-sm position-fixed" style="height: 100vh; z-index: 100; padding-top: 80px;">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4">
+                     <div class="avatar rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-2 overflow-hidden" style="width: 80px; height: 80px;">
+                        {% set avatarPath = profile_image(app.user) %}
+                        {% if avatarPath %}
+                            <img src="{{ asset(avatarPath) }}" alt="{{ app.user.username }}" class="w-100 h-100" style="object-fit: cover;">
+                        {% else %}
+                            <i class="fas fa-user fa-2x text-primary"></i>
+                        {% endif %}
+                     </div>
+                     <h6 class="fw-bold mb-0">{{ app.user ? app.user.username : 'Patient' }}</h6>
+                     <span class="badge bg-soft-primary text-primary rounded-pill">Patient</span>
+                     <div class="mt-2">
+                         <a href="{{ path('app_profile_edit') }}" class="btn btn-sm btn-outline-secondary rounded-pill py-0" style="font-size: 0.75rem;">Edit Profile</a>
+                     </div>
+                </div>
+
+                <ul class="nav flex-column gap-2 px-3">
+                    <li class="nav-item">
+                        <a class="nav-link active rounded-3 d-flex align-items-center p-3" href="{{ path('app_patient_dashboard') }}" style="background-color: #e3f2fd; color: #1E90FF; font-weight: 600;">
+                            <i class="fas fa-home me-3"></i> My Health Space
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ path('app_find_doctor') }}" class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light">
+                            <i class="fas fa-user-md me-3"></i> Find Doctors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_patient_appointments') }}">
+                            <i class="fas fa-calendar-alt me-3"></i> My Appointments
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_patient_consultations') }}">
+                            <i class="fas fa-stethoscope me-3"></i> My Consultations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_ordonnance_index') }}">
+                            <i class="fas fa-file-prescription me-3"></i> My Prescriptions
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4 border-top pt-3">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-danger hover-bg-red-light" href="{{ path('app_logout') }}">
+                            <i class="fas fa-sign-out-alt me-3"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+            
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <div>
+                    <h1 class="h2 fw-bold text-dark">Welcome Back, {{ app.user ? app.user.username : 'Patient' }}!</h1>
+                    <p class="text-muted">Here is your health overview for today.</p>
+                </div>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <a href="{{ path('app_find_doctor') }}" class="btn btn-primary rounded-pill px-4 shadow-sm" style="background-color: #1E90FF; border: none;">
+                        <i class="fas fa-plus me-2"></i> New Appointment
+                    </a>
+                </div>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="row g-4 mb-5">
+                <!-- Appointment Calendar Preview -->
+                <div class="col-md-6 col-lg-5">
+                    <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                        <div class="card-header bg-white border-0 py-3">
+                            <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-calendar-day me-2 text-primary"></i>Calendar</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <!-- Simple Calendar UI -->
+                            <div class="calendar-wrapper p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                                    <button class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-left"></i></button>
+                                    <span class="fw-bold text-dark">October 2026</span>
+                                    <button class="btn btn-sm btn-light rounded-circle"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <table class="table table-borderless text-center table-sm" style="font-size: 0.9rem;">
+                                    <thead>
+                                        <tr class="text-muted small">
+                                            <th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="text-muted opacity-50">28</td><td class="text-muted opacity-50">29</td><td class="text-muted opacity-50">30</td>
+                                            <td>1</td><td>2</td><td>3</td><td>4</td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="badge bg-primary rounded-circle p-2 d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">12</span></td>
+                                            <td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td>
+                                        </tr>
+                                        <tr>
+                                            <td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="mt-2 px-2">
+                                    <div class="p-2 rounded-3 bg-soft-primary border border-primary border-opacity-10 mb-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2 text-primary fw-bold">12</div>
+                                            <div>
+                                                <p class="mb-0 small fw-bold text-dark">Cardiologist Visit</p>
+                                                <p class="mb-0 pe-2" style="font-size: 0.75rem; color: #666;">10:00 AM • Dr. Salah Dridi</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm h-100 rounded-4 bg-primary text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%);">
+                         <div class="card-body p-4 position-relative" style="z-index: 1;">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h5 class="card-title fw-bold mb-0">Notifications</h5>
+                                <span class="badge bg-white text-primary rounded-pill">1 New</span>
+                            </div>
+                            <div class="alert bg-white bg-opacity-25 border-0 text-white rounded-3 p-3 mb-0">
+                                <div class="d-flex">
+                                    <i class="fas fa-file-medical-alt mt-1 me-3"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Blood Test Results</h6>
+                                        <p class="small mb-0 opacity-75">Your recent blood work results are now available.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="position-absolute bg-white opacity-10 rounded-circle" style="width: 200px; height: 200px; bottom: -80px; left: -80px; opacity: 0.1;"></div>
+                    </div>
+                </div>
+
+                 <!-- Quick Stats -->
+                <div class="col-md-6 col-lg-3">
+                     <div class="card border-0 shadow-sm h-100 rounded-4">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold text-dark mb-4">Vitals</h5>
+                             <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Heart Rate</h6>
+                                    <small class="text-muted">72 bpm</small>
+                                </div>
+                                <i class="fas fa-heartbeat text-danger fa-lg"></i>
+                            </div>
+                             <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Weight</h6>
+                                    <small class="text-muted">75 kg</small>
+                                </div>
+                                <i class="fas fa-weight text-success fa-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-3">Previous Consultations</h4>
+            <div class="table-responsive bg-white shadow-sm rounded-4 p-3 border-0">
+                 <table class="table table-hover align-middle mb-0">
+                     <thead class="bg-light rounded-3">
+                         <tr>
+                             <th class="border-0 ps-3 rounded-start">Doctor</th>
+                             <th class="border-0">Specialty</th>
+                             <th class="border-0">Date</th>
+                             <th class="border-0 rounded-end text-end pe-3">Action</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         <tr>
+                             <td class="ps-3 fw-bold">Dr. Amel Tounsi</td>
+                             <td class="text-muted">Dermatology</td>
+                             <td class="text-muted">10 Sep 2026</td>
+                             <td class="text-end pe-3"><button class="btn btn-sm btn-light rounded-pill">View Report</button></td>
+                         </tr>
+                     </tbody>
+                 </table>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-3 mt-4">My Prescriptions</h4>
+            <div class="bg-white shadow-sm rounded-4 p-4 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted mb-0">View and manage your prescriptions</p>
+                    <a href="{{ path('app_ordonnance_index') }}" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-file-prescription me-2"></i> View All Prescriptions
+                    </a>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light rounded-3 p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-pills text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Active Prescriptions</h6>
+                                    <small class="text-muted">Check your current medications</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light rounded-3 p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-clock text-warning fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Recent Prescriptions</h6>
+                                    <small class="text-muted">View latest prescriptions</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light rounded-3 p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-history text-info fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Prescription History</h6>
+                                    <small class="text-muted">Access all your records</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHATBOT WIDGET -->
+            <div id="chatbot-widget" class="position-fixed bottom-0 end-0 m-4" style="z-index: 1050;">
+                <!-- Chat Window (initially hidden) -->
+                <div class="card border-0 shadow-lg rounded-4 mb-3 d-none" id="chat-window" style="width: 350px; height: 450px;">
+                    <div class="card-header bg-primary text-white border-0 py-3 rounded-top-4 d-flex justify-content-between align-items-center" style="background-color: #1E90FF !important;">
+                        <div>
+                            <i class="fas fa-robot me-2"></i>
+                            <span class="fw-bold">MedTime Assistant</span>
+                        </div>
+                        <button class="btn btn-sm btn-link text-white text-decoration-none" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="card-body overflow-auto bg-light p-3" style="height: 340px;">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-white p-2 rounded-3 shadow-sm rounded-top-0" style="max-width: 80%;">
+                                    <small class="text-dark">Hello Ahmed! How can I help you today?</small>
+                                </div>
+                            </div>
+                             <div class="d-flex align-items-start justify-content-end">
+                                <div class="bg-primary text-white p-2 rounded-3 shadow-sm rounded-top-0" style="max-width: 80%; background-color: #1E90FF !important;">
+                                    <small>I need to find a cardiologist.</small>
+                                </div>
+                            </div>
+                             <div class="d-flex align-items-start">
+                                <div class="bg-white p-2 rounded-3 shadow-sm rounded-top-0" style="max-width: 80%;">
+                                    <small class="text-dark">Sure. You can use the 'Find Doctors' link in the sidebar or I can search for you here. Would you like to see available slots?</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-3 rounded-bottom-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control border-light bg-light rounded-start-pill ps-3" placeholder="Type a message...">
+                            <button class="btn btn-primary rounded-end-pill px-3" style="background-color: #1E90FF; border: none;"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Button -->
+                <button class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center p-0" onclick="toggleChat()" style="width: 60px; height: 60px; background-color: #1E90FF; border: none; transition: transform 0.2s;">
+                    <i class="fas fa-comment-medical fa-2x"></i>
+                </button>
+            </div>
+
+            <script>
+                function toggleChat() {
+                    const chatWindow = document.getElementById('chat-window');
+                    chatWindow.classList.toggle('d-none');
+                }
+            </script>
+
+        </main>
+    </div>
+</div>
+
+<style>
+    .hover-bg-light:hover { background-color: #f8f9fa !important; }
+    .hover-bg-red-light:hover { background-color: #fff5f5 !important; }
+    .bg-soft-primary { background-color: rgba(30, 144, 255, 0.1); }
+</style>
+{% endblock %}

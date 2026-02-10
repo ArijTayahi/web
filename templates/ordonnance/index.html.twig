@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Ordonnances{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Mes Ordonnances</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Consultation</th>
+                <th>Médecin</th>
+                <th>Contenu</th>
+                <th>Créé le</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ordonnance in ordonnances %}
+            <tr>
+                <td>{{ ordonnance.id }}</td>
+                <td>{{ ordonnance.consultation.consultationDate|date('d/m/Y H:i') }}</td>
+                <td>{{ ordonnance.doctor.user.username }}</td>
+                <td>{{ ordonnance.content|slice(0, 50) }}...</td>
+                <td>{{ ordonnance.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <a href="{{ path('app_ordonnance_show', {'id': ordonnance.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">Aucune ordonnance trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Consultation{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Détails de la Consultation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>ID</th>
+                <td>{{ consultation.id }}</td>
+            </tr>
+            <tr>
+                <th>Médecin</th>
+                <td>{{ consultation.doctor.user.username }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ consultation.consultationDate|date('d/m/Y H:i') }}</td>
+            </tr>
+            <tr>
+                <th>Type</th>
+                <td>{{ consultation.type }}</td>
+            </tr>
+            <tr>
+                <th>Statut</th>
+                <td>{{ consultation.status }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_consultation_index') }}" class="btn btn-secondary">Retour à la liste</a>
+</div>
+{% endblock %}

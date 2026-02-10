@@ -1,0 +1,192 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Consultation - MedTime{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .consultation-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #1E90FF 0%, #4169E1 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .card-header-custom::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+        opacity: 0.1;
+    }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+        font-weight: 500;
+        color: #6c757d;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #1E90FF;
+        box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .btn-custom {
+        background: linear-gradient(135deg, #1E90FF 0%, #4169E1 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+    }
+
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(30, 144, 255, 0.4);
+        color: white;
+    }
+
+    .btn-secondary-custom {
+        background: rgba(108, 117, 125, 0.1);
+        border: 2px solid #6c757d;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #6c757d;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary-custom:hover {
+        background: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .form-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #1E90FF;
+        font-size: 1.2rem;
+        z-index: 5;
+    }
+
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="consultation-card">
+                <!-- Header -->
+                <div class="card-header-custom">
+                    <h2 class="mb-0 fw-bold">
+                        <i class="fas fa-plus me-3"></i>
+                        Nouvelle Consultation
+                    </h2>
+                    <p class="mb-0 mt-2 opacity-75">Prenez rendez-vous avec un médecin qualifié</p>
+                </div>
+
+                <!-- Form -->
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                        <div class="row g-4">
+                            <!-- Doctor Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form_widget(form.doctor, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_label(form.doctor, '👨‍⚕️ Médecin') }}
+                                    <i class="fas fa-user-md form-icon"></i>
+                                </div>
+                                {% if form.doctor.vars.errors|length > 0 %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.doctor) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Type Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_label(form.type, '🏥 Type de consultation') }}
+                                    <i class="fas fa-stethoscope form-icon"></i>
+                                </div>
+                                {% if form.type.vars.errors|length > 0 %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.type) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- DateTime Field -->
+                            <div class="col-md-6">
+                                <div class="form-floating position-relative">
+                                    {{ form_widget(form.consultationDate, {'attr': {'class': 'form-control'}}) }}
+                                    {{ form_label(form.consultationDate, '📅 Date et heure') }}
+                                    <i class="fas fa-calendar-alt form-icon"></i>
+                                </div>
+                                {% if form.consultationDate.vars.errors|length > 0 %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form_errors(form.consultationDate) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-3 justify-content-center mt-4">
+                            <button type="submit" class="btn btn-custom">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                {{ button_label|default('Créer la Consultation') }}
+                            </button>
+                            <a href="{{ path('app_consultation_index') }}" class="btn btn-secondary-custom text-decoration-none">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Retour à la liste
+                            </a>
+                        </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

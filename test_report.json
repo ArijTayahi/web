@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-02-05T14:45:37.572206",
+  "total_tests": 9,
+  "passed": 9,
+  "failed": 0,
+  "errors": 0,
+  "results": {
+    "passed": [
+      {
+        "test": "Home Page",
+        "path": "/",
+        "status": 200
+      },
+      {
+        "test": "Login Page",
+        "path": "/login",
+        "status": 200
+      },
+      {
+        "test": "Register Page",
+        "path": "/register",
+        "status": 200
+      },
+      {
+        "test": "Appointments Page",
+        "path": "/appointments",
+        "status": 200
+      },
+      {
+        "test": "Admin Users List",
+        "path": "/admin/users",
+        "status": 200
+      },
+      {
+        "test": "Admin Create User",
+        "path": "/admin/users/create",
+        "status": 200
+      },
+      {
+        "test": "Register Form Submission",
+        "path": "/register",
+        "status": 200
+      },
+      {
+        "test": "404 Not Found",
+        "path": "/nonexistent",
+        "status": 404
+      },
+      {
+        "test": "Patient Dashboard (Unauthenticated)",
+        "path": "/patient/dashboard",
+        "status": "Protected"
+      }
+    ],
+    "failed": [],
+    "errors": []
+  }
+}
