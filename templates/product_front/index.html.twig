@@ -289,8 +289,9 @@
                     <div class="product-card">
                         <!-- Image du Produit -->
                         <div class="product-image">
-                            {% if product.image %}
-                                <img src="{{ product.image }}" alt="{{ product.name }}">
+                            {% if product.brand %}
+                                <img src="{{ asset('img/' ~ product.brand) }}" alt="{{ product.name }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <i class="fas fa-pills" style="font-size: 4rem; color: #667eea; opacity: 0.3; display: none;"></i>
                             {% else %}
                                 <i class="fas fa-pills" style="font-size: 4rem; color: #667eea; opacity: 0.3;"></i>
                             {% endif %}
