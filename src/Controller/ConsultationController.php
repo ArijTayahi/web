@@ -3,12 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Consultation;
-use App\Entity\Ordonnance;
-use App\Entity\SalleAttente;
-use App\Entity\Satisfaction;
-use App\Entity\StatistiquesSession;
+use App\Entity\User;
+use App\Form\ConsultationType;
 use App\Repository\ConsultationRepository;
-use App\Repository\UserRepository;
+use App\Repository\DoctorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,79 +18,66 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ConsultationController extends AbstractController
 {
     #[IsGranted('ROLE_PATIENT')]
-    #[Route('/demander', name: 'app_consultation_demander', methods: ['GET', 'POST'])]
-    public function demander(
-        Request $request,
-        UserRepository $userRepository,
-        EntityManagerInterface $entityManager
-    ): Response {
-        if ($request->isMethod('POST')) {
-            if (!$this->isCsrfTokenValid('demander_consultation', $request->request->get('_csrf_token'))) {
-                $this->addFlash('error', 'Token CSRF invalide.');
-                return $this->redirectToRoute('app_consultation_demander');
-            }
+    #[Route('/', name: 'app_consultation_index', methods: ['GET'])]
+    public function index(ConsultationRepository $consultationRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $patient = $user->getPatient();
+        $consultations = $consultationRepository->findBy(['patient' => $patient, 'isDeleted' => false]);
 
-            $medecinId = (int) $request->request->get('medecin_id');
-            $type = (string) $request->request->get('type');
-            $notes = trim((string) $request->request->get('notes'));
-
-            $medecin = $userRepository->find($medecinId);
-            if (!$medecin || !$medecin->getDoctor() || !$medecin->getDoctor()->isCertified()) {
-                $this->addFlash('error', 'Médecin non valide ou non certifié.');
-                return $this->redirectToRoute('app_consultation_demander');
-            }
-
-            /** @var \App\Entity\User $patient */
-            $patient = $this->getUser();
-
-            $consultation = new Consultation();
-            $consultation->setPatient($patient);
-            $consultation->setMedecin($medecin);
-            $consultation->setType($type);
-            $consultation->setNotes($notes);
-            $consultation->setStatus('EN_ATTENTE');
-
-            if ($type === 'EN_LIGNE') {
-                $consultation->setUrlVisio('https://medismart.tn/visio/' . uniqid());
-                
-                $salleAttente = new SalleAttente();
-                $salleAttente->setConsultation($consultation);
-                $entityManager->persist($salleAttente);
-            }
-
-            $entityManager->persist($consultation);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Consultation demandée avec succès.');
-
-            if ($type === 'EN_LIGNE') {
-                return $this->redirectToRoute('app_consultation_waiting', ['id' => $consultation->getId()]);
-            }
-
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-        }
-
-        $medecins = $userRepository->createQueryBuilder('u')
-            ->leftJoin('u.doctor', 'd')
-            ->where('d.isCertified = 1')
-            ->getQuery()
-            ->getResult();
-
-        return $this->render('consultation/demander.html.twig', [
-            'medecins' => $medecins,
+        return $this->render('consultation/index.html.twig', [
+            'consultations' => $consultations,
         ]);
     }
 
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_PHYSICIAN')]
+    #[Route('/doctor', name: 'app_consultation_doctor_index', methods: ['GET'])]
+    public function doctorIndex(ConsultationRepository $consultationRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $doctor = $user->getDoctor();
+        $consultations = $consultationRepository->findBy(['doctor' => $doctor, 'isDeleted' => false]);
+
+        return $this->render('consultation/doctor_index.html.twig', [
+            'consultations' => $consultations,
+        ]);
+    }
+
+    #[IsGranted('ROLE_PATIENT')]
+    #[Route('/new', name: 'app_consultation_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $consultation = new Consultation();
+        $consultation->setPatient($user->getPatient());
+        $consultation->setStatus('en attente');
+
+        $form = $this->createForm(ConsultationType::class, $consultation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($consultation);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_consultation_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('consultation/new.html.twig', [
+            'consultation' => $consultation,
+            'form' => $form,
+        ]);
+    }
+
+    #[IsGranted('ROLE_PATIENT')]
     #[Route('/{id}', name: 'app_consultation_show', methods: ['GET'])]
     public function show(Consultation $consultation): Response
     {
-        /** @var \App\Entity\User $user */
+        /** @var User $user */
         $user = $this->getUser();
-
-        if ($consultation->getPatient()->getId() !== $user->getId() 
-            && $consultation->getMedecin()->getId() !== $user->getId()
-            && !in_array('ROLE_ADMIN', $user->getRoles())) {
+        if ($consultation->getPatient() !== $user->getPatient()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -101,212 +86,106 @@ final class ConsultationController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_PATIENT')]
-    #[Route('/{id}/waiting', name: 'app_consultation_waiting', methods: ['GET'])]
-    public function waiting(Consultation $consultation): Response
+    #[Route('/{id}/edit', name: 'app_consultation_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Consultation $consultation, EntityManagerInterface $entityManager): Response
     {
-        /** @var \App\Entity\User $user */
+        /** @var User $user */
         $user = $this->getUser();
+        $isPatient = $this->isGranted('ROLE_PATIENT');
+        $isDoctor = $this->isGranted('ROLE_PHYSICIAN');
 
-        if ($consultation->getPatient()->getId() !== $user->getId()) {
+        // Check access permissions
+        if ($isPatient && $consultation->getPatient() !== $user->getPatient()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres consultations.');
+        }
+        if ($isDoctor && $consultation->getDoctor() !== $user->getDoctor()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que les consultations qui vous sont assignées.');
+        }
+        if (!$isPatient && !$isDoctor) {
             throw $this->createAccessDeniedException();
         }
 
-        if ($consultation->getStatus() !== 'EN_ATTENTE') {
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
+        // Patients can only edit consultations in 'en attente' status
+        if ($isPatient && $consultation->getStatus() !== 'en attente') {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que les consultations en attente.');
         }
 
-        return $this->render('consultation/waiting.html.twig', [
+        $form = $this->createForm(ConsultationType::class, $consultation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $consultation->setUpdatedAt(new \DateTimeImmutable());
+            $entityManager->flush();
+
+            // Redirect based on user role
+            if ($isPatient) {
+                return $this->redirectToRoute('app_consultation_index', [], Response::HTTP_SEE_OTHER);
+            } else {
+                return $this->redirectToRoute('app_consultation_doctor_index', [], Response::HTTP_SEE_OTHER);
+            }
+        }
+
+        return $this->render('consultation/edit.html.twig', [
             'consultation' => $consultation,
+            'form' => $form,
+            'is_patient' => $isPatient,
+            'is_doctor' => $isDoctor,
         ]);
-    }
-
-    #[IsGranted('ROLE_PHYSICIAN')]
-    #[Route('/{id}/start', name: 'app_consultation_start', methods: ['POST'])]
-    public function start(
-        Consultation $consultation,
-        Request $request,
-        EntityManagerInterface $entityManager
-    ): Response {
-        if (!$this->isCsrfTokenValid('start_consultation_' . $consultation->getId(), $request->request->get('_csrf_token'))) {
-            $this->addFlash('error', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_doctor_dashboard');
-        }
-
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-
-        if ($consultation->getMedecin()->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $consultation->setStatus('EN_COURS');
-        $consultation->setDateDebut(new \DateTime());
-
-        if ($consultation->getSalleAttente()) {
-            $consultation->getSalleAttente()->setStatus('APPELE');
-        }
-
-        $entityManager->flush();
-
-        if ($consultation->getType() === 'EN_LIGNE') {
-            return $this->redirectToRoute('app_visio_start', ['id' => $consultation->getId()]);
-        }
-
-        return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-    }
-
-    #[IsGranted('ROLE_PHYSICIAN')]
-    #[Route('/{id}/terminer', name: 'app_consultation_terminer', methods: ['POST'])]
-    public function terminer(
-        Consultation $consultation,
-        Request $request,
-        EntityManagerInterface $entityManager
-    ): Response {
-        if (!$this->isCsrfTokenValid('terminer_consultation_' . $consultation->getId(), $request->request->get('_csrf_token'))) {
-            $this->addFlash('error', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-        }
-
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-
-        if ($consultation->getMedecin()->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $diagnostic = trim((string) $request->request->get('diagnostic'));
-        $notes = trim((string) $request->request->get('notes'));
-
-        $consultation->setStatus('TERMINEE');
-        $consultation->setDateFin(new \DateTime());
-        $consultation->setDiagnostic($diagnostic);
-        $consultation->setNotes($notes);
-
-        // Créer les statistiques si c'est une consultation en ligne
-        if ($consultation->getType() === 'EN_LIGNE' && $consultation->getSessionVisio()) {
-            $stats = new StatistiquesSession();
-            $stats->setConsultation($consultation);
-            
-            $debut = $consultation->getDateDebut();
-            $fin = $consultation->getDateFin();
-            $duree = ($fin->getTimestamp() - $debut->getTimestamp()) / 60; // en minutes
-            
-            $stats->setDuree((int) $duree);
-            $stats->setQualiteConnexion('BONNE');
-            $stats->setNbMessages($consultation->getMessages()->count());
-            
-            $entityManager->persist($stats);
-        }
-
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Consultation terminée avec succès.');
-
-        return $this->redirectToRoute('app_ordonnance_create', ['consultationId' => $consultation->getId()]);
     }
 
     #[IsGranted('ROLE_PATIENT')]
-    #[Route('/{id}/evaluer', name: 'app_consultation_evaluer', methods: ['POST'])]
-    public function evaluer(
-        Consultation $consultation,
-        Request $request,
-        EntityManagerInterface $entityManager
-    ): Response {
-        if (!$this->isCsrfTokenValid('evaluer_consultation_' . $consultation->getId(), $request->request->get('_csrf_token'))) {
-            $this->addFlash('error', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-        }
-
-        /** @var \App\Entity\User $user */
+    #[Route('/{id}/cancel', name: 'app_consultation_cancel', methods: ['POST'])]
+    public function cancel(Request $request, Consultation $consultation, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
         $user = $this->getUser();
-
-        if ($consultation->getPatient()->getId() !== $user->getId()) {
+        if ($consultation->getPatient() !== $user->getPatient() || $consultation->getStatus() !== 'en attente') {
             throw $this->createAccessDeniedException();
         }
 
-        if ($consultation->getStatus() !== 'TERMINEE') {
-            $this->addFlash('error', 'Vous ne pouvez évaluer qu\'une consultation terminée.');
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
+        if ($this->isCsrfTokenValid('cancel'.$consultation->getId(), $request->request->get('_token'))) {
+            $consultation->setIsDeleted(true);
+            $entityManager->flush();
         }
 
-        if ($consultation->getSatisfaction()) {
-            $this->addFlash('error', 'Vous avez déjà évalué cette consultation.');
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-        }
-
-        $score = (int) $request->request->get('score');
-        $commentaire = trim((string) $request->request->get('commentaire'));
-
-        if ($score < 1 || $score > 5) {
-            $this->addFlash('error', 'Score invalide.');
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-        }
-
-        $satisfaction = new Satisfaction();
-        $satisfaction->setConsultation($consultation);
-        $satisfaction->setPatient($user);
-        $satisfaction->setScore($score);
-        $satisfaction->setCommentaire($commentaire !== '' ? $commentaire : null);
-
-        $entityManager->persist($satisfaction);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Merci pour votre évaluation !');
-
-        return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-    }
-
-    #[IsGranted('ROLE_USER')]
-    #[Route('/mes-consultations', name: 'app_mes_consultations', methods: ['GET'])]
-    public function mesConsultations(ConsultationRepository $repository): Response
-    {
-        /** @var \App\Entity\User $user */
-        $user = $this->getUser();
-
-        $qb = $repository->createQueryBuilder('c');
-
-        if (in_array('ROLE_PHYSICIAN', $user->getRoles())) {
-            $qb->where('c.medecin = :user');
-        } else {
-            $qb->where('c.patient = :user');
-        }
-
-        $consultations = $qb
-            ->setParameter('user', $user)
-            ->orderBy('c.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        return $this->render('consultation/mes_consultations.html.twig', [
-            'consultations' => $consultations,
-        ]);
+        return $this->redirectToRoute('app_consultation_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[IsGranted('ROLE_PHYSICIAN')]
-    #[Route('/{id}/annuler', name: 'app_consultation_annuler', methods: ['POST'])]
-    public function annuler(
-        Consultation $consultation,
-        Request $request,
-        EntityManagerInterface $entityManager
-    ): Response {
-        if (!$this->isCsrfTokenValid('annuler_consultation_' . $consultation->getId(), $request->request->get('_csrf_token'))) {
-            $this->addFlash('error', 'Token CSRF invalide.');
-            return $this->redirectToRoute('app_consultation_show', ['id' => $consultation->getId()]);
-        }
-
-        /** @var \App\Entity\User $user */
+    #[Route('/{id}/status', name: 'app_consultation_change_status', methods: ['POST'])]
+    public function changeStatus(Request $request, Consultation $consultation, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
         $user = $this->getUser();
-
-        if ($consultation->getMedecin()->getId() !== $user->getId()) {
+        if ($consultation->getDoctor() !== $user->getDoctor()) {
             throw $this->createAccessDeniedException();
         }
 
-        $consultation->setStatus('ANNULEE');
-        $entityManager->flush();
+        $newStatus = $request->request->get('status');
+        if (in_array($newStatus, ['confirmed', 'cancelled'])) {
+            $consultation->setStatus($newStatus);
+            $consultation->setUpdatedAt(new \DateTimeImmutable());
+            $entityManager->flush();
+        }
 
-        $this->addFlash('success', 'Consultation annulée.');
+        return $this->redirectToRoute('app_consultation_doctor_index', [], Response::HTTP_SEE_OTHER);
+    }
 
-        return $this->redirectToRoute('app_mes_consultations');
+    #[IsGranted('ROLE_PHYSICIAN')]
+    #[Route('/{id}/delete', name: 'app_consultation_doctor_delete', methods: ['POST'])]
+    public function doctorDelete(Request $request, Consultation $consultation, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($consultation->getDoctor() !== $user->getDoctor()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$consultation->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($consultation);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_consultation_doctor_index', [], Response::HTTP_SEE_OTHER);
     }
 }

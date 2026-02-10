@@ -38,10 +38,24 @@ class Doctor
     #[ORM\OneToMany(mappedBy: 'doctor', targetEntity: DoctorDocument::class, cascade: ['persist', 'remove'])]
     private Collection $documents;
 
+    /**
+     * @var Collection<int, Consultation>
+     */
+    #[ORM\OneToMany(mappedBy: 'doctor', targetEntity: Consultation::class)]
+    private Collection $consultations;
+
+    /**
+     * @var Collection<int, Ordonnance>
+     */
+    #[ORM\OneToMany(mappedBy: 'doctor', targetEntity: Ordonnance::class)]
+    private Collection $ordonnances;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->documents = new ArrayCollection();
+        $this->consultations = new ArrayCollection();
+        $this->ordonnances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -130,8 +144,72 @@ class Doctor
     public function removeDocument(DoctorDocument $document): self
     {
         if ($this->documents->removeElement($document)) {
-            if ($document->getDoctor() === $this) {
-                $document->setDoctor($this);
+            /** @var Doctor $doctor */
+            $doctor = $document->getDoctor();
+            if ($doctor === $this) {
+                // DoctorDocument doctor is not nullable
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Consultation>
+     */
+    public function getConsultations(): Collection
+    {
+        return $this->consultations;
+    }
+
+    public function addConsultation(Consultation $consultation): self
+    {
+        if (!$this->consultations->contains($consultation)) {
+            $this->consultations->add($consultation);
+            $consultation->setDoctor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeConsultation(Consultation $consultation): self
+    {
+        if ($this->consultations->removeElement($consultation)) {
+            $doctor = $consultation->getDoctor();
+            if ($doctor !== null && $doctor === $this) {
+                $consultation->setDoctor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ordonnance>
+     */
+    public function getOrdonnances(): Collection
+    {
+        return $this->ordonnances;
+    }
+
+    public function addOrdonnance(Ordonnance $ordonnance): self
+    {
+        if (!$this->ordonnances->contains($ordonnance)) {
+            $this->ordonnances->add($ordonnance);
+            $ordonnance->setDoctor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrdonnance(Ordonnance $ordonnance): self
+    {
+        if ($this->ordonnances->removeElement($ordonnance)) {
+            // set the owning side to null (unless already changed)
+            /** @var Doctor $doctor */
+            $doctor = $ordonnance->getDoctor();
+            if ($doctor === $this) {
+                // Ordonnance doctor is not nullable, no need to set to null
             }
         }
 

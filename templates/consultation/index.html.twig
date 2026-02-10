@@ -1,20 +1,49 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ConsultationController!{% endblock %}
+{% block title %}Mes Consultations{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="container mt-5">
+    <h1>Mes Consultations</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <a href="{{ path('app_consultation_new') }}" class="btn btn-primary mb-3">Nouvelle Consultation</a>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/user/MedTime/src/Controller/ConsultationController.php</code></li>
-        <li>Your template at <code>C:/Users/user/MedTime/templates/consultation/index.html.twig</code></li>
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Médecin</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for consultation in consultations %}
+            <tr>
+                <td>{{ consultation.id }}</td>
+                <td>{{ consultation.doctor.user.username }}</td>
+                <td>{{ consultation.consultationDate|date('d/m/Y H:i') }}</td>
+                <td>{{ consultation.type }}</td>
+                <td>{{ consultation.status }}</td>
+                <td>
+                    <a href="{{ path('app_consultation_show', {'id': consultation.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                    {% if consultation.status == 'en attente' %}
+                        <a href="{{ path('app_consultation_edit', {'id': consultation.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        <form method="post" action="{{ path('app_consultation_cancel', {'id': consultation.id}) }}" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ consultation.id) }}">
+                            <button class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler ?')">Annuler</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">Aucune consultation trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

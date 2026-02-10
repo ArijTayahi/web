@@ -6,12 +6,14 @@
 <div class="container mt-5">
     <h1>Mes Ordonnances</h1>
 
+    <a href="{{ path('app_consultation_doctor_index') }}" class="btn btn-secondary mb-3">Voir Consultations</a>
+
     <table class="table">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Consultation</th>
-                <th>Médecin</th>
+                <th>Patient</th>
                 <th>Contenu</th>
                 <th>Créé le</th>
                 <th>Actions</th>
@@ -22,11 +24,16 @@
             <tr>
                 <td>{{ ordonnance.id }}</td>
                 <td>{{ ordonnance.consultation.consultationDate|date('d/m/Y H:i') }}</td>
-                <td>{{ ordonnance.doctor.user.username }}</td>
+                <td>{{ ordonnance.consultation.patient.user.username }}</td>
                 <td>{{ ordonnance.content|slice(0, 50) }}...</td>
                 <td>{{ ordonnance.createdAt|date('d/m/Y H:i') }}</td>
                 <td>
                     <a href="{{ path('app_ordonnance_show', {'id': ordonnance.id}) }}" class="btn btn-sm btn-primary">Voir</a>
+                    <a href="{{ path('app_ordonnance_edit', {'id': ordonnance.id}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form method="post" action="{{ path('app_ordonnance_delete', {'id': ordonnance.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ordonnance.id) }}">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
+                    </form>
                 </td>
             </tr>
         {% else %}

@@ -3,12 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\OrdonnanceRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrdonnanceRepository::class)]
+#[ORM\Table(name: 'ordonnances')]
 class Ordonnance
 {
     #[ORM\Id]
@@ -16,40 +14,26 @@ class Ordonnance
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $numeroOrdonnance = null;
+    #[ORM\ManyToOne(targetEntity: Consultation::class, inversedBy: 'ordonnances')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Consultation $consultation;
+
+    #[ORM\ManyToOne(targetEntity: Doctor::class, inversedBy: 'ordonnances')]
+    #[ORM\JoinColumn(nullable: false)]
+    private Doctor $doctor;
+
+    #[ORM\Column(type: 'text')]
+    private string $content;
 
     #[ORM\Column]
-    private ?\DateTime $dateEmission = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTime $dateValidite = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $instructions = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $qrCode = null;
-
-    /**
-     * @var Collection<int, Consultation>
-     */
-    #[ORM\OneToMany(targetEntity: Consultation::class, mappedBy: 'no')]
-    private Collection $consultation;
-
-    /**
-     * @var Collection<int, LigneOrdonnance>
-     */
-    #[ORM\OneToMany(targetEntity: LigneOrdonnance::class, mappedBy: 'ordonnance')]
-    private Collection $Lignes;
-
-    #[ORM\OneToOne(mappedBy: 'ordonnance', cascade: ['persist', 'remove'])]
-    private ?Facture $facture = null;
+    private ?\DateTimeImmutable $updatedAt = null;
 
     public function __construct()
     {
-        $this->consultation = new ArrayCollection();
-        $this->Lignes = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -57,144 +41,62 @@ class Ordonnance
         return $this->id;
     }
 
-    public function getNumeroOrdonnance(): ?string
-    {
-        return $this->numeroOrdonnance;
-    }
-
-    public function setNumeroOrdonnance(string $numeroOrdonnance): static
-    {
-        $this->numeroOrdonnance = $numeroOrdonnance;
-
-        return $this;
-    }
-
-    public function getDateEmission(): ?\DateTime
-    {
-        return $this->dateEmission;
-    }
-
-    public function setDateEmission(\DateTime $dateEmission): static
-    {
-        $this->dateEmission = $dateEmission;
-
-        return $this;
-    }
-
-    public function getDateValidite(): ?\DateTime
-    {
-        return $this->dateValidite;
-    }
-
-    public function setDateValidite(?\DateTime $dateValidite): static
-    {
-        $this->dateValidite = $dateValidite;
-
-        return $this;
-    }
-
-    public function getInstructions(): ?string
-    {
-        return $this->instructions;
-    }
-
-    public function setInstructions(?string $instructions): static
-    {
-        $this->instructions = $instructions;
-
-        return $this;
-    }
-
-    public function getQrCode(): ?string
-    {
-        return $this->qrCode;
-    }
-
-    public function setQrCode(?string $qrCode): static
-    {
-        $this->qrCode = $qrCode;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Consultation>
-     */
-    public function getConsultation(): Collection
+    public function getConsultation(): ?Consultation
     {
         return $this->consultation;
     }
 
-    public function addConsultation(Consultation $consultation): static
+    public function setConsultation(?Consultation $consultation): self
     {
-        if (!$this->consultation->contains($consultation)) {
-            $this->consultation->add($consultation);
-            $consultation->setNo($this);
-        }
+        $this->consultation = $consultation;
 
         return $this;
     }
 
-    public function removeConsultation(Consultation $consultation): static
+    public function getDoctor(): Doctor
     {
-        if ($this->consultation->removeElement($consultation)) {
-            // set the owning side to null (unless already changed)
-            if ($consultation->getNo() === $this) {
-                $consultation->setNo(null);
-            }
-        }
+        return $this->doctor;
+    }
+
+    public function setDoctor(Doctor $doctor): self
+    {
+        $this->doctor = $doctor;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, LigneOrdonnance>
-     */
-    public function getLignes(): Collection
+    public function getContent(): string
     {
-        return $this->Lignes;
+        return $this->content;
     }
 
-    public function addLigne(LigneOrdonnance $ligne): static
+    public function setContent(string $content): self
     {
-        if (!$this->Lignes->contains($ligne)) {
-            $this->Lignes->add($ligne);
-            $ligne->setOrdonnance($this);
-        }
+        $this->content = $content;
 
         return $this;
     }
 
-    public function removeLigne(LigneOrdonnance $ligne): static
+    public function getCreatedAt(): \DateTimeImmutable
     {
-        if ($this->Lignes->removeElement($ligne)) {
-            // set the owning side to null (unless already changed)
-            if ($ligne->getOrdonnance() === $this) {
-                $ligne->setOrdonnance(null);
-            }
-        }
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getFacture(): ?Facture
+    public function getUpdatedAt(): ?\DateTimeImmutable
     {
-        return $this->facture;
+        return $this->updatedAt;
     }
 
-    public function setFacture(?Facture $facture): static
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
     {
-        // unset the owning side of the relation if necessary
-        if ($facture === null && $this->facture !== null) {
-            $this->facture->setOrdonnance(null);
-        }
-
-        // set the owning side of the relation if necessary
-        if ($facture !== null && $facture->getOrdonnance() !== $this) {
-            $facture->setOrdonnance($this);
-        }
-
-        $this->facture = $facture;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

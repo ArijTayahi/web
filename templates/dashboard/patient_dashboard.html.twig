@@ -42,6 +42,16 @@
                             <i class="fas fa-calendar-alt me-3"></i> My Appointments
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_patient_consultations') }}">
+                            <i class="fas fa-stethoscope me-3"></i> My Consultations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded-3 d-flex align-items-center p-3 text-secondary hover-bg-light" href="{{ path('app_ordonnance_index') }}">
+                            <i class="fas fa-file-prescription me-3"></i> My Prescriptions
+                        </a>
+                    </li>
                     <li class="nav-item mt-4 border-top pt-3">
                         <a class="nav-link rounded-3 d-flex align-items-center p-3 text-danger hover-bg-red-light" href="{{ path('app_logout') }}">
                             <i class="fas fa-sign-out-alt me-3"></i> Logout
@@ -187,6 +197,51 @@
                          </tr>
                      </tbody>
                  </table>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-3 mt-4">My Prescriptions</h4>
+            <div class="bg-white shadow-sm rounded-4 p-4 border-0">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted mb-0">View and manage your prescriptions</p>
+                    <a href="{{ path('app_ordonnance_index') }}" class="btn btn-primary rounded-pill px-4">
+                        <i class="fas fa-file-prescription me-2"></i> View All Prescriptions
+                    </a>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light rounded-3 p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-pills text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Active Prescriptions</h6>
+                                    <small class="text-muted">Check your current medications</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light rounded-3 p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-clock text-warning fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Recent Prescriptions</h6>
+                                    <small class="text-muted">View latest prescriptions</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light rounded-3 p-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-history text-info fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Prescription History</h6>
+                                    <small class="text-muted">Access all your records</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- CHATBOT WIDGET -->

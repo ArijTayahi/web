@@ -2,14 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Consultation;
-use App\Entity\LigneOrdonnance;
 use App\Entity\Ordonnance;
+use App\Entity\User;
+use App\Form\OrdonnanceType;
 use App\Repository\OrdonnanceRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Dompdf\Dompdf;
-use Dompdf\Options;
-use Endroid\QrCode\Builder\Builder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,103 +16,86 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/ordonnance')]
 final class OrdonnanceController extends AbstractController
 {
-    #[IsGranted('ROLE_PHYSICIAN')]
-    #[Route('/create/{consultationId}', name: 'app_ordonnance_create', methods: ['GET', 'POST'])]
-    public function create(
-        int $consultationId,
-        Request $request,
-        EntityManagerInterface $entityManager
-    ): Response {
-        $consultation = $entityManager->getRepository(Consultation::class)->find($consultationId);
-
-        if (!$consultation) {
-            throw $this->createNotFoundException('Consultation non trouvée.');
-        }
-
-        /** @var \App\Entity\User $user */
+    #[IsGranted('ROLE_PATIENT')]
+    #[Route('/', name: 'app_ordonnance_index', methods: ['GET'])]
+    public function index(OrdonnanceRepository $ordonnanceRepository): Response
+    {
+        /** @var User $user */
         $user = $this->getUser();
+        $patient = $user->getPatient();
+        $ordonnances = $ordonnanceRepository->createQueryBuilder('o')
+            ->leftJoin('o.consultation', 'c')
+            ->where('c.patient = :patient')
+            ->setParameter('patient', $patient)
+            ->getQuery()
+            ->getResult();
 
-        if ($consultation->getMedecin()->getId() !== $user->getId()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        if ($consultation->getOrdonnance()) {
-            return $this->redirectToRoute('app_ordonnance_show', ['id' => $consultation->getOrdonnance()->getId()]);
-        }
-
-        if ($request->isMethod('POST')) {
-            if (!$this->isCsrfTokenValid('create_ordonnance_' . $consultationId, $request->request->get('_csrf_token'))) {
-                $this->addFlash('error', 'Token CSRF invalide.');
-                return $this->redirectToRoute('app_ordonnance_create', ['consultationId' => $consultationId]);
-            }
-
-            $instructions = trim((string) $request->request->get('instructions'));
-            $medicaments = $request->request->all('medicaments');
-
-            if (empty($medicaments)) {
-                $this->addFlash('error', 'Veuillez ajouter au moins un médicament.');
-                return $this->redirectToRoute('app_ordonnance_create', ['consultationId' => $consultationId]);
-            }
-
-            $ordonnance = new Ordonnance();
-            $ordonnance->setConsultation($consultation);
-            $ordonnance->setInstructions($instructions !== '' ? $instructions : null);
-            
-            $dateValidite = new \DateTime();
-            $dateValidite->modify('+30 days');
-            $ordonnance->setDateValidite($dateValidite);
-
-            foreach ($medicaments as $med) {
-                $nom = trim((string) ($med['nom'] ?? ''));
-                $dosage = trim((string) ($med['dosage'] ?? ''));
-                $quantite = (int) ($med['quantite'] ?? 0);
-                $duree = trim((string) ($med['duree'] ?? ''));
-                $instructionsMed = trim((string) ($med['instructions'] ?? ''));
-
-                if ($nom === '' || $dosage === '' || $quantite <= 0 || $duree === '') {
-                    continue;
-                }
-
-                $ligne = new LigneOrdonnance();
-                $ligne->setNomMedicament($nom);
-                $ligne->setDosage($dosage);
-                $ligne->setQuantite($quantite);
-                $ligne->setDureeTraitement($duree);
-                $ligne->setInstructions($instructionsMed !== '' ? $instructionsMed : null);
-                $ligne->setOrdonnance($ordonnance);
-
-                $entityManager->persist($ligne);
-            }
-
-            // Générer le QR Code
-            $this->generateQrCode($ordonnance);
-
-            $entityManager->persist($ordonnance);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Ordonnance créée avec succès.');
-
-            return $this->redirectToRoute('app_ordonnance_show', ['id' => $ordonnance->getId()]);
-        }
-
-        return $this->render('ordonnance/create.html.twig', [
-            'consultation' => $consultation,
+        return $this->render('ordonnance/index.html.twig', [
+            'ordonnances' => $ordonnances,
         ]);
     }
 
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_PHYSICIAN')]
+    #[Route('/doctor', name: 'app_ordonnance_doctor_index', methods: ['GET'])]
+    public function doctorIndex(OrdonnanceRepository $ordonnanceRepository): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $doctor = $user->getDoctor();
+        $ordonnances = $ordonnanceRepository->findBy(['doctor' => $doctor]);
+
+        return $this->render('ordonnance/doctor_index.html.twig', [
+            'ordonnances' => $ordonnances,
+        ]);
+    }
+
+    #[IsGranted('ROLE_PHYSICIAN')]
+    #[Route('/new/{consultationId}', name: 'app_ordonnance_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, int $consultationId, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $consultation = $entityManager->getRepository(\App\Entity\Consultation::class)->find($consultationId);
+        if (!$consultation || $consultation->getDoctor() !== $user->getDoctor()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $ordonnance = new Ordonnance();
+        $ordonnance->setConsultation($consultation);
+        $ordonnance->setDoctor($user->getDoctor());
+
+        $form = $this->createForm(OrdonnanceType::class, $ordonnance);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($ordonnance);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_ordonnance_doctor_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('ordonnance/new.html.twig', [
+            'ordonnance' => $ordonnance,
+            'form' => $form,
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_ordonnance_show', methods: ['GET'])]
     public function show(Ordonnance $ordonnance): Response
     {
-        /** @var \App\Entity\User $user */
+        /** @var User $user */
         $user = $this->getUser();
 
-        $consultation = $ordonnance->getConsultation();
-
-        if ($consultation->getPatient()->getId() !== $user->getId() 
-            && $consultation->getMedecin()->getId() !== $user->getId()
-            && !in_array('ROLE_ADMIN', $user->getRoles())) {
-            throw $this->createAccessDeniedException();
+        // Check if user is physician and owns the prescription
+        if ($this->isGranted('ROLE_PHYSICIAN') && $ordonnance->getDoctor() === $user->getDoctor()) {
+            // Physician can view their own prescriptions
+        }
+        // Check if user is patient and owns the prescription
+        elseif ($this->isGranted('ROLE_PATIENT') && $ordonnance->getConsultation()->getPatient() === $user->getPatient()) {
+            // Patient can view their own prescriptions
+        }
+        else {
+            throw $this->createAccessDeniedException('Vous n\'avez pas accès à cette ordonnance.');
         }
 
         return $this->render('ordonnance/show.html.twig', [
@@ -123,65 +103,47 @@ final class OrdonnanceController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_USER')]
-    #[Route('/{id}/pdf', name: 'app_ordonnance_pdf', methods: ['GET'])]
-    public function pdf(Ordonnance $ordonnance): Response
+    #[IsGranted('ROLE_DOCTOR')]
+    #[Route('/{id}/edit', name: 'app_ordonnance_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Ordonnance $ordonnance, EntityManagerInterface $entityManager): Response
     {
-        /** @var \App\Entity\User $user */
+        /** @var User $user */
         $user = $this->getUser();
-
-        $consultation = $ordonnance->getConsultation();
-
-        if ($consultation->getPatient()->getId() !== $user->getId() 
-            && $consultation->getMedecin()->getId() !== $user->getId()
-            && !in_array('ROLE_ADMIN', $user->getRoles())) {
+        if ($ordonnance->getDoctor() !== $user->getDoctor()) {
             throw $this->createAccessDeniedException();
         }
 
-        $options = new Options();
-        $options->set('defaultFont', 'Arial');
-        $options->set('isRemoteEnabled', true);
+        $form = $this->createForm(OrdonnanceType::class, $ordonnance);
+        $form->handleRequest($request);
 
-        $dompdf = new Dompdf($options);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $ordonnance->setUpdatedAt(new \DateTimeImmutable());
+            $entityManager->flush();
 
-        $html = $this->renderView('ordonnance/pdf.html.twig', [
-            'ordonnance' => $ordonnance,
-        ]);
-
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        return new Response(
-            $dompdf->output(),
-            200,
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="ordonnance_' . $ordonnance->getNumeroOrdonnance() . '.pdf"',
-            ]
-        );
-    }
-
-    private function generateQrCode(Ordonnance $ordonnance): void
-    {
-        $projectDir = $this->getParameter('kernel.project_dir');
-        $qrDir = $projectDir . '/public/uploads/qrcode';
-
-        if (!is_dir($qrDir)) {
-            mkdir($qrDir, 0775, true);
+            return $this->redirectToRoute('app_ordonnance_doctor_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        $result = Builder::create()
-            ->data('ORD-' . $ordonnance->getNumeroOrdonnance())
-            ->size(200)
-            ->margin(10)
-            ->build();
+        return $this->render('ordonnance/edit.html.twig', [
+            'ordonnance' => $ordonnance,
+            'form' => $form,
+        ]);
+    }
 
-        $filename = $ordonnance->getNumeroOrdonnance() . '.png';
-        $filepath = $qrDir . '/' . $filename;
+    #[IsGranted('ROLE_PHYSICIAN')]
+    #[Route('/{id}', name: 'app_ordonnance_delete', methods: ['POST'])]
+    public function delete(Request $request, Ordonnance $ordonnance, EntityManagerInterface $entityManager): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        if ($ordonnance->getDoctor() !== $user->getDoctor()) {
+            throw $this->createAccessDeniedException();
+        }
 
-        $result->saveToFile($filepath);
+        if ($this->isCsrfTokenValid('delete'.$ordonnance->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($ordonnance);
+            $entityManager->flush();
+        }
 
-        $ordonnance->setQrCode('uploads/qrcode/' . $filename);
+        return $this->redirectToRoute('app_ordonnance_doctor_index', [], Response::HTTP_SEE_OTHER);
     }
 }

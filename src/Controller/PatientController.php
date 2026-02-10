@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ConsultationRepository;
 use App\Repository\DoctorRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +34,21 @@ final class PatientController extends AbstractController
         return $this->render('patient/find_doctor.html.twig', [
             'doctors' => $doctors,
             'search' => $search,
+        ]);
+    }
+
+    #[IsGranted('ROLE_PATIENT')]
+    #[Route('/patient/consultations', name: 'app_patient_consultations', methods: ['GET'])]
+    public function consultations(ConsultationRepository $consultationRepository): Response
+    {
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
+        $patient = $user->getPatient();
+
+        $consultations = $consultationRepository->findBy(['patient' => $patient], ['consultationDate' => 'DESC']);
+
+        return $this->render('patient/consultations.html.twig', [
+            'consultations' => $consultations,
         ]);
     }
 }

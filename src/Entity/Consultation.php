@@ -5,10 +5,10 @@ namespace App\Entity;
 use App\Repository\ConsultationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ConsultationRepository::class)]
+#[ORM\Table(name: 'consultations')]
 class Consultation
 {
     #[ORM\Id]
@@ -16,65 +16,42 @@ class Consultation
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(targetEntity: Patient::class, inversedBy: 'consultations')]
+    #[ORM\JoinColumn(nullable: false)]
+    private Patient $patient;
+
+    #[ORM\ManyToOne(targetEntity: Doctor::class, inversedBy: 'consultations')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Doctor $doctor;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $consultationDate = null;
+
+    #[ORM\Column(length: 50)]
+    private string $type; // 'online' or 'cabinet'
+
+    #[ORM\Column(length: 50)]
+    private string $status; // 'en attente', 'confirmed', etc.
+
+    #[ORM\Column(options: ['default' => false])]
+    private bool $isDeleted = false;
+
     #[ORM\Column]
-    private ?\DateTime $dateDebut = null;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTime $dateFin = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $type = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $diagnostic = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $notes = null;
-
-    #[ORM\Column(length: 50)]
-    private ?string $status = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $urlVsio = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $createAt = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $patient = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $medecin = null;
-
-    #[ORM\ManyToOne(inversedBy: 'consultation')]
-    private ?Ordonnance $no = null;
-
-    #[ORM\OneToOne(mappedBy: 'consultation', cascade: ['persist', 'remove'])]
-    private ?SessionVisio $sessionVisio = null;
-
-    #[ORM\OneToOne(mappedBy: 'consultation', cascade: ['persist', 'remove'])]
-    private ?SalleAttente $salleAttente = null;
+    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @var Collection<int, Chat>
+     * @var Collection<int, Ordonnance>
      */
-    #[ORM\OneToMany(targetEntity: Chat::class, mappedBy: 'consultation')]
-    private Collection $messages;
-
-    #[ORM\OneToOne(mappedBy: 'consultation', cascade: ['persist', 'remove'])]
-    private ?StatistiquesSession $statistiques = null;
-
-    #[ORM\OneToOne(mappedBy: 'consultation', cascade: ['persist', 'remove'])]
-    private ?Satisfaction $satisfaction = null;
-
-    #[ORM\OneToOne(mappedBy: 'consultation', cascade: ['persist', 'remove'])]
-    private ?Paiement $paiement = null;
+    #[ORM\OneToMany(mappedBy: 'consultation', targetEntity: Ordonnance::class)]
+    private Collection $ordonnances;
 
     public function __construct()
     {
-        $this->messages = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->ordonnances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -82,249 +59,128 @@ class Consultation
         return $this->id;
     }
 
-    public function getDateDebut(): ?\DateTime
-    {
-        return $this->dateDebut;
-    }
-
-    public function setDateDebut(\DateTime $dateDebut): static
-    {
-        $this->dateDebut = $dateDebut;
-
-        return $this;
-    }
-
-    public function getDateFin(): ?\DateTime
-    {
-        return $this->dateFin;
-    }
-
-    public function setDateFin(?\DateTime $dateFin): static
-    {
-        $this->dateFin = $dateFin;
-
-        return $this;
-    }
-
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    public function setType(string $type): static
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    public function getDiagnostic(): ?string
-    {
-        return $this->diagnostic;
-    }
-
-    public function setDiagnostic(?string $diagnostic): static
-    {
-        $this->diagnostic = $diagnostic;
-
-        return $this;
-    }
-
-    public function getNotes(): ?string
-    {
-        return $this->notes;
-    }
-
-    public function setNotes(?string $notes): static
-    {
-        $this->notes = $notes;
-
-        return $this;
-    }
-
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): static
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    public function getUrlVsio(): ?string
-    {
-        return $this->urlVsio;
-    }
-
-    public function setUrlVsio(?string $urlVsio): static
-    {
-        $this->urlVsio = $urlVsio;
-
-        return $this;
-    }
-
-    public function getCreateAt(): ?\DateTimeImmutable
-    {
-        return $this->createAt;
-    }
-
-    public function setCreateAt(\DateTimeImmutable $createAt): static
-    {
-        $this->createAt = $createAt;
-
-        return $this;
-    }
-
-    public function getPatient(): ?User
+    public function getPatient(): Patient
     {
         return $this->patient;
     }
 
-    public function setPatient(?User $patient): static
+    public function setPatient(Patient $patient): self
     {
         $this->patient = $patient;
 
         return $this;
     }
 
-    public function getMedecin(): ?User
+    public function getDoctor(): ?Doctor
     {
-        return $this->medecin;
+        return $this->doctor;
     }
 
-    public function setMedecin(?User $medecin): static
+    public function setDoctor(?Doctor $doctor): self
     {
-        $this->medecin = $medecin;
+        $this->doctor = $doctor;
 
         return $this;
     }
 
-    public function getNo(): ?Ordonnance
+    public function getConsultationDate(): \DateTimeInterface
     {
-        return $this->no;
+        return $this->consultationDate;
     }
 
-    public function setNo(?Ordonnance $no): static
+    public function setConsultationDate(\DateTimeInterface $consultationDate): self
     {
-        $this->no = $no;
+        $this->consultationDate = $consultationDate;
 
         return $this;
     }
 
-    public function getSessionVisio(): ?SessionVisio
+    public function getType(): string
     {
-        return $this->sessionVisio;
+        return $this->type;
     }
 
-    public function setSessionVisio(SessionVisio $sessionVisio): static
+    public function setType(string $type): self
     {
-        // set the owning side of the relation if necessary
-        if ($sessionVisio->getConsultation() !== $this) {
-            $sessionVisio->setConsultation($this);
-        }
-
-        $this->sessionVisio = $sessionVisio;
+        $this->type = $type;
 
         return $this;
     }
 
-    public function getSalleAttente(): ?SalleAttente
+    public function getStatus(): string
     {
-        return $this->salleAttente;
+        return $this->status;
     }
 
-    public function setSalleAttente(SalleAttente $salleAttente): static
+    public function setStatus(string $status): self
     {
-        // set the owning side of the relation if necessary
-        if ($salleAttente->getConsultation() !== $this) {
-            $salleAttente->setConsultation($this);
-        }
+        $this->status = $status;
 
-        $this->salleAttente = $salleAttente;
+        return $this;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setIsDeleted(bool $isDeleted): self
+    {
+        $this->isDeleted = $isDeleted;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, Chat>
+     * @return Collection<int, Ordonnance>
      */
-    public function getMessages(): Collection
+    public function getOrdonnances(): Collection
     {
-        return $this->messages;
+        return $this->ordonnances;
     }
 
-    public function addMessage(Chat $message): static
+    public function addOrdonnance(Ordonnance $ordonnance): self
     {
-        if (!$this->messages->contains($message)) {
-            $this->messages->add($message);
-            $message->setConsultation($this);
+        if (!$this->ordonnances->contains($ordonnance)) {
+            $this->ordonnances->add($ordonnance);
+            $ordonnance->setConsultation($this);
         }
 
         return $this;
     }
 
-    public function removeMessage(Chat $message): static
+    public function removeOrdonnance(Ordonnance $ordonnance): self
     {
-        if ($this->messages->removeElement($message)) {
+        if ($this->ordonnances->removeElement($ordonnance)) {
             // set the owning side to null (unless already changed)
-            if ($message->getConsultation() === $this) {
-                $message->setConsultation(null);
+            if ($ordonnance->getConsultation() === $this) {
+                $ordonnance->setConsultation(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getStatistiques(): ?StatistiquesSession
-    {
-        return $this->statistiques;
-    }
-
-    public function setStatistiques(StatistiquesSession $statistiques): static
-    {
-        // set the owning side of the relation if necessary
-        if ($statistiques->getConsultation() !== $this) {
-            $statistiques->setConsultation($this);
-        }
-
-        $this->statistiques = $statistiques;
-
-        return $this;
-    }
-
-    public function getSatisfaction(): ?Satisfaction
-    {
-        return $this->satisfaction;
-    }
-
-    public function setSatisfaction(Satisfaction $satisfaction): static
-    {
-        // set the owning side of the relation if necessary
-        if ($satisfaction->getConsultation() !== $this) {
-            $satisfaction->setConsultation($this);
-        }
-
-        $this->satisfaction = $satisfaction;
-
-        return $this;
-    }
-
-    public function getPaiement(): ?Paiement
-    {
-        return $this->paiement;
-    }
-
-    public function setPaiement(Paiement $paiement): static
-    {
-        // set the owning side of the relation if necessary
-        if ($paiement->getConsultation() !== $this) {
-            $paiement->setConsultation($this);
-        }
-
-        $this->paiement = $paiement;
 
         return $this;
     }

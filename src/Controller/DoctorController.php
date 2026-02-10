@@ -17,6 +17,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class DoctorController extends AbstractController
 {
     #[IsGranted('ROLE_PHYSICIAN')]
+    #[Route('/doctor', name: 'app_doctor_redirect')]
+    public function redirectToDashboard(): Response
+    {
+        return $this->redirectToRoute('app_doctor_dashboard');
+    }
+
+    #[IsGranted('ROLE_PHYSICIAN')]
     #[Route('/doctor/verification', name: 'app_doctor_verification', methods: ['GET'])]
     public function verification(DoctorRepository $doctorRepository): Response
     {
