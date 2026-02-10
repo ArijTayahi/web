@@ -7,7 +7,9 @@ use App\Entity\DoctorDocument;
 use App\Entity\Patient;
 use App\Entity\Role;
 use App\Entity\User;
+use App\Repository\AvailabilityRepository;
 use App\Repository\DoctorDocumentRepository;
+use App\Repository\RendezVousRepository;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -381,9 +383,12 @@ final class AdminController extends AbstractController
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/appointments', name: 'app_admin_appointments', methods: ['GET'])]
-    public function appointments(): Response
+    public function appointments(RendezVousRepository $rendezVousRepository, AvailabilityRepository $availabilityRepository): Response
     {
-        return $this->render('admin/appointments.html.twig');
+        return $this->render('admin/appointments.html.twig', [
+            'rendez_vouses' => $rendezVousRepository->findAll(),
+            'availabilities' => $availabilityRepository->findAll(),
+        ]);
     }
 
     #[IsGranted('ROLE_ADMIN')]

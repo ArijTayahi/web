@@ -40,6 +40,31 @@ security:
         - { path: ^/doctor, roles: ROLE_PHYSICIAN }
         - { path: ^/patient, roles: ROLE_PATIENT }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/consultation/demander, roles: ROLE_PATIENT }
+        - { path: ^/consultation/mes-consultations, roles: ROLE_USER }
+        - { path: ^/consultation/\d+/waiting, roles: ROLE_PATIENT }
+        - { path: ^/consultation/\d+/start, roles: ROLE_PHYSICIAN }
+        - { path: ^/consultation/\d+/terminer, roles: ROLE_PHYSICIAN }
+        - { path: ^/consultation/\d+/annuler, roles: ROLE_PHYSICIAN }
+        - { path: ^/consultation/\d+/evaluer, roles: ROLE_PATIENT }
+        - { path: ^/consultation, roles: ROLE_USER }
+        # Disponibilités & Rendez-vous : requièrent authentification
+        - { path: ^/availability, roles: ROLE_USER }
+        - { path: ^/rendez/vous, roles: ROLE_USER }
+        # Ordonnance
+        - { path: ^/ordonnance/create, roles: ROLE_PHYSICIAN }
+        - { path: ^/ordonnance, roles: ROLE_USER }
+
+        # Visio
+        - { path: ^/visio/start, roles: ROLE_PHYSICIAN }
+        - { path: ^/visio, roles: ROLE_USER }
+
+        # Chat (AJAX)
+        - { path: ^/chat, roles: ROLE_USER }
+
+        # Paiement
+        - { path: ^/paiement/consultation, roles: ROLE_PATIENT }
+        - { path: ^/paiement, roles: ROLE_USER }
 
     role_hierarchy:
         ROLE_ADMIN: [ROLE_PHYSICIAN, ROLE_PATIENT]

@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Medilab{% endblock %}</title>
     <meta name="description" content="Medilab Healthcare Platform">
-    
+
     <!-- Favicon -->
     <link href="{{ asset('img/favicon.png') }}" rel="icon">
     <link href="{{ asset('img/apple-touch-icon.png') }}" rel="apple-touch-icon">
-    
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-    
+
     <!-- Vendor CSS Files -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -22,10 +22,10 @@
     <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/swiper@11.1.4/swiper-bundle.min.css" rel="stylesheet">
-    
+
     <!-- Main CSS File -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
-    
+
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
@@ -49,9 +49,158 @@
             </div>
         </div>
     </div>
+
+    {# ================= NAVBAR ================= #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="{{ path('app_home') }}">
+                🏥 Medilab
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
+                    </li>
+
+                    {% if app.user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_consultation_index') }}">
+                                📋 Mes consultations
+                            </a>
+                        </li>
+
+                        <!-- DROPDOWN APPOINTMENTS -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                📅 Appointments
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_rendez_vous_index') }}">
+                                        <i class="bi bi-calendar-event me-2"></i>RendezVous
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_availability_index') }}">
+                                        <i class="bi bi-calendar-check me-2"></i>Availability
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_rendez_vous_new') }}">
+                                        <i class="bi bi-plus-circle me-2"></i>New RendezVous
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_availability_new') }}">
+                                        <i class="bi bi-plus-circle me-2"></i>New Availability
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        {% if is_granted('ROLE_PATIENT') %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_consultation_new') }}">
+                                    ➕ Demander consultation
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_find_doctor') }}">
+                                    🔎 Trouver un médecin
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if is_granted('ROLE_PHYSICIAN') %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_consultation_doctor_index') }}">
+                                    📅 Mes consultations (Médecin)
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_admin_users') }}">
+                                    🛠️ Admin Users
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    {% if app.user %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                👤 {{ app.user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_admin_dashboard') }}">
+                                            🛠️ Dashboard Admin
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% if is_granted('ROLE_PHYSICIAN') %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_doctor_dashboard') }}">
+                                            🩺 Dashboard Médecin
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% if is_granted('ROLE_PATIENT') %}
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_patient_dashboard') }}">
+                                            🧑‍⚕️ Dashboard Patient
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                <li><hr class="dropdown-divider"></li>
+
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_profile_edit') }}">
+                                        ⚙️ Mon profil
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{{ path('app_logout') }}">
+                                        🚪 Déconnexion
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_login') }}">
+                                🔐 Connexion
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_register') }}">
+                                📝 Inscription
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     {% block content %}{% endblock %}
     {% block body %}{% endblock %}
-    
+
     <!-- Vendor JS Files -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
@@ -59,10 +208,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@srexi/purecounterjs@1.5.0/dist/purecounter_vanilla.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11.1.4/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/php-email-form@3.5.0/validate.js"></script>
-    
+
     <!-- Main JS File -->
     <script src="{{ asset('js/main.js') }}"></script>
-    
+
     {% block javascripts %}{% endblock %}
 </body>
 </html>

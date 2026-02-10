@@ -30,6 +30,11 @@ class TransactionPaiement
     #[ORM\JoinColumn(nullable: false)]
     private ?Paiement $paiement = null;
 
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

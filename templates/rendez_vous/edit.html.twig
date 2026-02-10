@@ -1,13 +1,180 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit RendezVous{% endblock %}
+{% block title %}Edit Appointment - MedTime{% endblock %}
 
 {% block body %}
-    <h1>Edit RendezVous</h1>
+<main class="main">
+    <!-- Breadcrumb Section -->
+    <div class="breadcrumb-section pt-4 pb-4" style="background-color: #f8f9fa;">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #1E90FF;">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_rendez_vous_index') }}" style="color: #1E90FF;">Appointments</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-    {{ include('rendez_vous/_form.html.twig', {'button_label': 'Update'}) }}
+    <!-- Form Section -->
+    <section class="form-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light p-4 border-bottom">
+                            <h4 class="mb-0 fw-bold text-primary">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Appointment
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            {{ form_start(form, {'attr': {'class': 'form-layout', 'novalidate': true}}) }}
+                                
+                                <!-- Appointment DateTime -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">Appointment Date & Time <span class="text-danger">*</span></label>
+                                    {{ form_widget(form.appointmentDateTime, {'attr': {'class': 'form-control form-control-lg', 'required': true}}) }}
+                                </div>
 
-    <a href="{{ path('app_rendez_vous_index') }}">back to list</a>
+                                <div class="row">
+                                    <!-- Duration -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Duration (minutes) <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.duration, {'attr': {'class': 'form-control form-control-lg', 'type': 'number', 'required': true, 'min': '15', 'step': '15'}}) }}
+                                    </div>
 
-    {{ include('rendez_vous/_delete_form.html.twig') }}
+                                    <!-- Reminder Sent -->
+                                    <div class="col-md-6 mb-4">
+                                        <div class="form-check form-switch mt-4">
+                                            {{ form_widget(form.reminderSent, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                                            <label class="form-check-label" for="{{ form.reminderSent.vars.id }}">
+                                                Reminder Sent
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Status -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Status <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.status, {'attr': {'class': 'form-select form-select-lg', 'required': true}}) }}
+                                    </div>
+
+                                    <!-- Consultation Type -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Consultation Type <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.consultationType, {'attr': {'class': 'form-select form-select-lg', 'required': true}}) }}
+                                    </div>
+                                </div>
+
+                                <!-- Reason -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">Reason for Consultation</label>
+                                    {{ form_widget(form.reason, {'attr': {'class': 'form-control form-control-lg', 'rows': '3'}}) }}
+                                </div>
+
+                                <!-- Notes -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">Additional Notes</label>
+                                    {{ form_widget(form.notes, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                                </div>
+
+                                <div class="row">
+                                    <!-- Doctor -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Doctor <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.doctor, {'attr': {'class': 'form-select form-select-lg', 'required': true}}) }}
+                                    </div>
+
+                                    <!-- Patient -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Patient <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.patient, {'attr': {'class': 'form-select form-select-lg', 'required': true}}) }}
+                                    </div>
+                                </div>
+
+                                <!-- Cancellation Risk -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">Cancellation Risk (0-1)</label>
+                                    {{ form_widget(form.cancellationRisk, {'attr': {'class': 'form-control form-control-lg', 'type': 'number', 'min': '0', 'max': '1', 'step': '0.1'}}) }}
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <div class="d-flex gap-3 justify-content-between">
+                                            <a href="{{ path('app_rendez_vous_index') }}" class="btn btn-outline-secondary btn-lg">
+                                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                                            </a>
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="bi bi-check-circle me-2"></i>Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .breadcrumb-section {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .form-section {
+        background-color: #ffffff;
+    }
+    
+    .card {
+        border-radius: 8px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .text-primary {
+        color: #1E90FF !important;
+    }
+    
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control-lg,
+    .form-select-lg {
+        border-radius: 6px;
+        border: 1px solid #d0d0d0;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #1E90FF;
+        box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
+    }
+    
+    .btn-primary {
+        background-color: #1E90FF;
+        border-color: #1E90FF;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1873CC;
+        border-color: #1873CC;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+    }
+</style>
 {% endblock %}
