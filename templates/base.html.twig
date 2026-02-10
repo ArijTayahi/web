@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    {# ================= NAVBAR (AJOUT) ================= #}
+    {# ================= NAVBAR ================= #}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
             <a class="navbar-brand fw-bold text-primary" href="{{ path('app_home') }}">
@@ -72,6 +72,36 @@
                             <a class="nav-link" href="{{ path('app_mes_consultations') }}">
                                 📋 Mes consultations
                             </a>
+                        </li>
+
+                        <!-- DROPDOWN APPOINTMENTS -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                📅 Appointments
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_rendez_vous_index') }}">
+                                        <i class="bi bi-calendar-event me-2"></i>RendezVous
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_availability_index') }}">
+                                        <i class="bi bi-calendar-check me-2"></i>Availability
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_rendez_vous_new') }}">
+                                        <i class="bi bi-plus-circle me-2"></i>New RendezVous
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ path('app_availability_new') }}">
+                                        <i class="bi bi-plus-circle me-2"></i>New Availability
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
 
                         {% if is_granted('ROLE_PATIENT') %}

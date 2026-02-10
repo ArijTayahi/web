@@ -1,62 +1,303 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}RendezVous{% endblock %}
+{% block title %}View Appointment - MedTime{% endblock %}
 
 {% block body %}
-    <h1>RendezVous</h1>
+<main class="main">
+    <!-- Breadcrumb Section -->
+    <div class="breadcrumb-section pt-4 pb-4" style="background-color: #f8f9fa;">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #1E90FF;">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_rendez_vous_index') }}" style="color: #1E90FF;">Appointments</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">View Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ rendez_vou.id }}</td>
-            </tr>
-            <tr>
-                <th>AppointmentDateTime</th>
-                <td>{{ rendez_vou.appointmentDateTime ? rendez_vou.appointmentDateTime|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Duration</th>
-                <td>{{ rendez_vou.duration }}</td>
-            </tr>
-            <tr>
-                <th>Status</th>
-                <td>{{ rendez_vou.status }}</td>
-            </tr>
-            <tr>
-                <th>ConsultationType</th>
-                <td>{{ rendez_vou.consultationType }}</td>
-            </tr>
-            <tr>
-                <th>Reason</th>
-                <td>{{ rendez_vou.reason }}</td>
-            </tr>
-            <tr>
-                <th>Notes</th>
-                <td>{{ rendez_vou.notes }}</td>
-            </tr>
-            <tr>
-                <th>ReminderSent</th>
-                <td>{{ rendez_vou.reminderSent ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>CreatedAt</th>
-                <td>{{ rendez_vou.createdAt ? rendez_vou.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>UpdatedAt</th>
-                <td>{{ rendez_vou.updatedAt ? rendez_vou.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>CancellationRisk</th>
-                <td>{{ rendez_vou.cancellationRisk }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Details Section -->
+    <section class="details-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light p-4 border-bottom d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 fw-bold text-primary">
+                                <i class="bi bi-calendar-event me-2"></i>Appointment Details
+                            </h4>
+                            <span class="badge bg-info fs-6">ID: {{ rendez_vou.id }}</span>
+                        </div>
+                        
+                        <div class="card-body p-4">
+                            <!-- People Section -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Doctor</label>
+                                            <p class="detail-value text-primary">
+                                                <i class="bi bi-person-badge me-2"></i>
+                                                {{ rendez_vou.doctor.username ?? rendez_vou.doctor.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Patient</label>
+                                            <p class="detail-value text-primary">
+                                                <i class="bi bi-person me-2"></i>
+                                                {{ rendez_vou.patient.username ?? rendez_vou.patient.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-    <a href="{{ path('app_rendez_vous_index') }}">back to list</a>
+                            <!-- Date & Time -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Date & Time</label>
+                                            <p class="detail-value">
+                                                <i class="bi bi-calendar-event me-2"></i>
+                                                <strong>{{ rendez_vou.appointmentDateTime ? rendez_vou.appointmentDateTime|date('d/m/Y H:i') : 'N/A' }}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Duration</label>
+                                            <p class="detail-value">
+                                                <i class="bi bi-hourglass-split me-2"></i>
+                                                <strong>{{ rendez_vou.duration }} minutes</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-    <a href="{{ path('app_rendez_vous_edit', {'id': rendez_vou.id}) }}">edit</a>
+                            <!-- Status & Type -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Status</label>
+                                            <p class="detail-value">
+                                                {% if rendez_vou.status.value == 'PENDING' %}
+                                                    <span class="badge bg-warning">Pending</span>
+                                                {% elseif rendez_vou.status.value == 'CONFIRMED' %}
+                                                    <span class="badge bg-success">Confirmed</span>
+                                                {% elseif rendez_vou.status.value == 'CANCELLED' %}
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                {% elseif rendez_vou.status.value == 'COMPLETED' %}
+                                                    <span class="badge bg-secondary">Completed</span>
+                                                {% else %}
+                                                    <span class="badge bg-dark">{{ rendez_vou.status.value }}</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Consultation Type</label>
+                                            <p class="detail-value">
+                                                {% if rendez_vou.consultationType.value == 'IN_PERSON' %}
+                                                    <span class="badge bg-success">In-Person</span>
+                                                {% else %}
+                                                    <span class="badge bg-info">Online</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-    {{ include('rendez_vous/_delete_form.html.twig') }}
+                            <!-- Reason -->
+                            {% if rendez_vou.reason %}
+                                <div class="detail-row pb-4 border-bottom">
+                                    <div class="detail-item">
+                                        <label class="detail-label fw-bold text-dark">Reason for Consultation</label>
+                                        <p class="detail-value">
+                                            {{ rendez_vou.reason }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Notes -->
+                            {% if rendez_vou.notes %}
+                                <div class="detail-row pb-4 border-bottom">
+                                    <div class="detail-item">
+                                        <label class="detail-label fw-bold text-dark">Additional Notes</label>
+                                        <p class="detail-value">
+                                            {{ rendez_vou.notes }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Additional Info -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Reminder Sent</label>
+                                            <p class="detail-value">
+                                                {% if rendez_vou.reminderSent %}
+                                                    <span class="badge bg-success">Yes</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">No</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {% if rendez_vou.cancellationRisk %}
+                                        <div class="col-md-6">
+                                            <div class="detail-item">
+                                                <label class="detail-label fw-bold text-dark">Cancellation Risk</label>
+                                                <p class="detail-value">
+                                                    {% set risk = rendez_vou.cancellationRisk * 100 %}
+                                                    <span class="badge {% if risk < 33 %}bg-success{% elseif risk < 66 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                        {{ risk|round(1) }}%
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Timestamps -->
+                            <div class="detail-row pb-4">
+                                <div class="row text-muted small">
+                                    <div class="col-md-6">
+                                        {% if rendez_vou.createdAt %}
+                                            <p>
+                                                <i class="bi bi-plus-circle me-1"></i>
+                                                Created: {{ rendez_vou.createdAt|date('d/m/Y H:i') }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        {% if rendez_vou.updatedAt %}
+                                            <p>
+                                                <i class="bi bi-pencil-square me-1"></i>
+                                                Updated: {{ rendez_vou.updatedAt|date('d/m/Y H:i') }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row mt-5 pt-4 border-top">
+                                <div class="col-12">
+                                    <div class="d-flex gap-3 justify-content-between">
+                                        <a href="{{ path('app_rendez_vous_index') }}" class="btn btn-outline-secondary btn-lg">
+                                            <i class="bi bi-arrow-left me-2"></i>Back to List
+                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ path('app_rendez_vous_edit', {'id': rendez_vou.id}) }}" class="btn btn-warning btn-lg">
+                                                <i class="bi bi-pencil me-2"></i>Edit
+                                            </a>
+                                            <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this appointment?</p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{{ path('app_rendez_vous_delete', {'id': rendez_vou.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ rendez_vou.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .breadcrumb-section {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .details-section {
+        background-color: #ffffff;
+    }
+    
+    .card {
+        border-radius: 8px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .text-primary {
+        color: #1E90FF !important;
+    }
+    
+    .detail-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        border-radius: 6px;
+    }
+    
+    .btn-primary {
+        background-color: #1E90FF;
+        border-color: #1E90FF;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1873CC;
+        border-color: #1873CC;
+    }
+</style>
 {% endblock %}

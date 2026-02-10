@@ -1,13 +1,168 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Availability{% endblock %}
+{% block title %}Edit Availability - MedTime{% endblock %}
 
 {% block body %}
-    <h1>Edit Availability</h1>
+<main class="main">
+    <!-- Breadcrumb Section -->
+    <div class="breadcrumb-section pt-4 pb-4" style="background-color: #f8f9fa;">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #1E90FF;">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_availability_index') }}" style="color: #1E90FF;">Availabilities</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-    {{ include('availability/_form.html.twig', {'button_label': 'Update'}) }}
+    <!-- Form Section -->
+    <section class="form-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light p-4 border-bottom">
+                            <h4 class="mb-0 fw-bold text-primary">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Availability
+                            </h4>
+                        </div>
+                        <div class="card-body p-4">
+                            {{ form_start(form, {'attr': {'class': 'form-layout', 'novalidate': true}}) }}
+                                
+                                <div class="row">
+                                    <!-- Day of Week -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Day of Week <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.dayOfWeek, {'attr': {'class': 'form-select form-select-lg', 'required': true}}) }}
+                                    </div>
 
-    <a href="{{ path('app_availability_index') }}">back to list</a>
+                                    <!-- Recurring -->
+                                    <div class="col-md-6 mb-4">
+                                        <div class="form-check form-switch mt-4">
+                                            {{ form_widget(form.recurring, {'attr': {'class': 'form-check-input', 'role': 'switch'}}) }}
+                                            <label class="form-check-label" for="{{ form.recurring.vars.id }}">
+                                                Recurring Schedule
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
 
-    {{ include('availability/_delete_form.html.twig') }}
+                                <div class="row">
+                                    <!-- Start Time -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Start Time <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.startTime, {'attr': {'class': 'form-control form-control-lg', 'type': 'time', 'required': true}}) }}
+                                    </div>
+
+                                    <!-- End Time -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">End Time <span class="text-danger">*</span></label>
+                                        {{ form_widget(form.endTime, {'attr': {'class': 'form-control form-control-lg', 'type': 'time', 'required': true}}) }}
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <!-- Start Date -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">Start Date</label>
+                                        {{ form_widget(form.startDate, {'attr': {'class': 'form-control form-control-lg', 'type': 'date'}}) }}
+                                    </div>
+
+                                    <!-- End Date -->
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold text-dark">End Date</label>
+                                        {{ form_widget(form.endDate, {'attr': {'class': 'form-control form-control-lg', 'type': 'date'}}) }}
+                                    </div>
+                                </div>
+
+                                <!-- Doctor Selection -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold text-dark">Doctor <span class="text-danger">*</span></label>
+                                    {{ form_widget(form.doctor, {'attr': {'class': 'form-select form-select-lg', 'required': true}}) }}
+                                </div>
+
+                                <!-- Form Actions -->
+                                <div class="row mt-5">
+                                    <div class="col-12">
+                                        <div class="d-flex gap-3 justify-content-between">
+                                            <a href="{{ path('app_availability_index') }}" class="btn btn-outline-secondary btn-lg">
+                                                <i class="bi bi-arrow-left me-2"></i>Back to List
+                                            </a>
+                                            <button type="submit" class="btn btn-primary btn-lg">
+                                                <i class="bi bi-check-circle me-2"></i>Save Changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<style>
+    .breadcrumb-section {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .form-section {
+        background-color: #ffffff;
+    }
+    
+    .card {
+        border-radius: 8px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .text-primary {
+        color: #1E90FF !important;
+    }
+    
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control-lg,
+    .form-select-lg {
+        border-radius: 6px;
+        border: 1px solid #d0d0d0;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #1E90FF;
+        box-shadow: 0 0 0 0.2rem rgba(30, 144, 255, 0.25);
+    }
+    
+    .btn-primary {
+        background-color: #1E90FF;
+        border-color: #1E90FF;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1873CC;
+        border-color: #1873CC;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+    }
+</style>
 {% endblock %}

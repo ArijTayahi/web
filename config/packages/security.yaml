@@ -55,7 +55,9 @@ security:
         - { path: ^/consultation/\d+/annuler, roles: ROLE_PHYSICIAN }
         - { path: ^/consultation/\d+/evaluer, roles: ROLE_PATIENT }
         - { path: ^/consultation, roles: ROLE_USER }
-
+        # Disponibilités & Rendez-vous : requièrent authentification
+        - { path: ^/availability, roles: ROLE_USER }
+        - { path: ^/rendez/vous, roles: ROLE_USER }
         # Ordonnance
         - { path: ^/ordonnance/create, roles: ROLE_PHYSICIAN }
         - { path: ^/ordonnance, roles: ROLE_USER }

@@ -1,46 +1,237 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Availability{% endblock %}
+{% block title %}View Availability - MedTime{% endblock %}
 
 {% block body %}
-    <h1>Availability</h1>
+<main class="main">
+    <!-- Breadcrumb Section -->
+    <div class="breadcrumb-section pt-4 pb-4" style="background-color: #f8f9fa;">
+        <div class="container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}" style="color: #1E90FF;">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_availability_index') }}" style="color: #1E90FF;">Availabilities</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">View Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ availability.id }}</td>
-            </tr>
-            <tr>
-                <th>DayOfWeek</th>
-                <td>{{ availability.dayOfWeek }}</td>
-            </tr>
-            <tr>
-                <th>StartTime</th>
-                <td>{{ availability.startTime ? availability.startTime|date('H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>EndTime</th>
-                <td>{{ availability.endTime ? availability.endTime|date('H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Recurring</th>
-                <td>{{ availability.recurring ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>StartDate</th>
-                <td>{{ availability.startDate ? availability.startDate|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>EndDate</th>
-                <td>{{ availability.endDate ? availability.endDate|date('Y-m-d') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Details Section -->
+    <section class="details-section py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-light p-4 border-bottom d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0 fw-bold text-primary">
+                                <i class="bi bi-calendar-event me-2"></i>Availability Details
+                            </h4>
+                            <span class="badge bg-info fs-6">ID: {{ availability.id }}</span>
+                        </div>
+                        
+                        <div class="card-body p-4">
+                            <!-- Doctor Info -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Doctor</label>
+                                            <p class="detail-value text-primary">
+                                                <i class="bi bi-person-badge me-2"></i>
+                                                {{ availability.doctor.username ?? availability.doctor.email }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Day of Week</label>
+                                            <p class="detail-value">
+                                                <span class="badge bg-info">{{ availability.dayOfWeek.value }}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-    <a href="{{ path('app_availability_index') }}">back to list</a>
+                            <!-- Time Schedule -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">Start Time</label>
+                                            <p class="detail-value">
+                                                <i class="bi bi-clock-history me-2"></i>
+                                                <strong>{{ availability.startTime ? availability.startTime|date('H:i') : 'N/A' }}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <label class="detail-label fw-bold text-dark">End Time</label>
+                                            <p class="detail-value">
+                                                <i class="bi bi-clock me-2"></i>
+                                                <strong>{{ availability.endTime ? availability.endTime|date('H:i') : 'N/A' }}</strong>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-    <a href="{{ path('app_availability_edit', {'id': availability.id}) }}">edit</a>
+                            <!-- Recurring Info -->
+                            <div class="detail-row pb-4 border-bottom">
+                                <div class="detail-item">
+                                    <label class="detail-label fw-bold text-dark">Recurring Schedule</label>
+                                    <p class="detail-value">
+                                        {% if availability.recurring %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle me-1"></i>Yes - Repeats Every Week
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle me-1"></i>No - One Time Only
+                                            </span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
 
-    {{ include('availability/_delete_form.html.twig') }}
+                            <!-- Date Range -->
+                            {% if availability.startDate or availability.endDate %}
+                                <div class="detail-row pb-4 border-bottom">
+                                    <div class="row">
+                                        {% if availability.startDate %}
+                                            <div class="col-md-6">
+                                                <div class="detail-item">
+                                                    <label class="detail-label fw-bold text-dark">Start Date</label>
+                                                    <p class="detail-value">
+                                                        <i class="bi bi-calendar-plus me-2"></i>
+                                                        {{ availability.startDate ? availability.startDate|date('d/m/Y') : 'N/A' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% if availability.endDate %}
+                                            <div class="col-md-6">
+                                                <div class="detail-item">
+                                                    <label class="detail-label fw-bold text-dark">End Date</label>
+                                                    <p class="detail-value">
+                                                        <i class="bi bi-calendar-minus me-2"></i>
+                                                        {{ availability.endDate ? availability.endDate|date('d/m/Y') : 'N/A' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="row mt-5 pt-4 border-top">
+                                <div class="col-12">
+                                    <div class="d-flex gap-3 justify-content-between">
+                                        <a href="{{ path('app_availability_index') }}" class="btn btn-outline-secondary btn-lg">
+                                            <i class="bi bi-arrow-left me-2"></i>Back to List
+                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ path('app_availability_edit', {'id': availability.id}) }}" class="btn btn-warning btn-lg">
+                                                <i class="bi bi-pencil me-2"></i>Edit
+                                            </a>
+                                            <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                                <i class="bi bi-trash me-2"></i>Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header border-danger">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2 text-danger"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this availability schedule?</p>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{{ path('app_availability_delete', {'id': availability.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ availability.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .breadcrumb-section {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .details-section {
+        background-color: #ffffff;
+    }
+    
+    .card {
+        border-radius: 8px;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .text-primary {
+        color: #1E90FF !important;
+    }
+    
+    .detail-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        border-radius: 6px;
+    }
+    
+    .btn-primary {
+        background-color: #1E90FF;
+        border-color: #1E90FF;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1873CC;
+        border-color: #1873CC;
+    }
+</style>
 {% endblock %}
