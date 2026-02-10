@@ -2,9 +2,14 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Article;
 use App\Entity\Doctor;
 use App\Entity\Patient;
+use App\Entity\Product;
+use App\Entity\ProductCategory;
 use App\Entity\Role;
+use App\Entity\Specialite;
+use App\Entity\Tag;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -109,6 +114,151 @@ class AppFixtures extends Fixture
             $patient->setUser($user);
             $patient->setRegion($patientData['region']);
             $manager->persist($patient);
+        }
+
+        $manager->flush();
+
+        // Create Specialites
+        $specialites = [];
+        $specialiteNames = [
+            'Cardiologie',
+            'Neurologie',
+            'Dermatologie',
+            'Pédiatrie',
+            'Gastroentérologie',
+            'Pneumologie',
+            'Rhumatologie',
+            'Endocrinologie'
+        ];
+        
+        foreach ($specialiteNames as $name) {
+            $specialite = new Specialite();
+            $specialite->setNom($name);
+            $specialite->setDescription("Spécialité médicale en $name avec expertise reconnue");
+            $manager->persist($specialite);
+            $specialites[] = $specialite;
+        }
+
+        $manager->flush();
+
+        // Create Tags
+        $tags = [];
+        $tagNames = [
+            'Santé',
+            'Prévention',
+            'Hygiène',
+            'Nutrition',
+            'Exercice',
+            'Bien-être',
+            'Diabète',
+            'Hypertension',
+            'Allergie',
+            'Immunité',
+            'Sommeil',
+            'Stress'
+        ];
+        
+        foreach ($tagNames as $name) {
+            $tag = new Tag();
+            $tag->setNom($name);
+            $manager->persist($tag);
+            $tags[] = $tag;
+        }
+
+        $manager->flush();
+
+        // Get doctors to associate with articles
+        $doctors = $manager->getRepository(Doctor::class)->findAll();
+
+        // Create Articles
+        $articles = [
+            [
+                'titre' => 'Les bienfaits de l\'exercice régulier pour votre cœur',
+                'contenu' => 'L\'exercice régulier est essentiel pour maintenir une bonne santé cardiaque. Des études scientifiques montrent que 30 minutes d\'activité physique par jour réduisent le risque de maladies cardiovasculaires de 35%. Cet article explore les différents types d\'exercices recommandés par les cardiologues modernes et comment les intégrer dans votre routine quotidienne. Découvrez également les signes d\'alerte à surveiller et quand consulter un professionnel de santé. Notre approche holistique combine l\'exercice, l\'alimentation et la gestion du stress pour une santé optimale.',
+                'specialite' => 0,
+            ],
+            [
+                'titre' => 'Comprendre les migraines: causes et solutions',
+                'contenu' => 'Les migraines affectent plus de 12% de la population mondiale. Dans cet article détaillé, nous explorons les causes neurobiologiques des migraines, les facteurs déclencheurs courants et les stratégies de prévention efficaces. Découvrez les derniers traitements pharmacologiques et non pharmacologiques approuvés par les neurologues. Nous discutons également de l\'importance du suivi et de la tenue d\'un journal des migraines pour identifier vos déclencheurs personnels et gérer efficacement cette condition chronique.',
+                'specialite' => 1,
+            ],
+            [
+                'titre' => 'Soins de la peau: guide complet pour tous les types de peau',
+                'contenu' => 'Une routine de soins de la peau adaptée à votre type de peau est fondamentale. Les dermatologues recommandent une approche personnalisée et cohérente. Cet article couvre les principes de nettoyage, d\'hydratation et de protection solaire essentiels. Apprenez à identifier votre type de peau, les ingrédients à privilégier et ceux à éviter. Nous partageons également les routines recommandées pour différentes conditions: acné, sécheresse, sensibilité et vieillissement. Consultez un dermatologue pour les problèmes persistants.',
+                'specialite' => 2,
+            ],
+            [
+                'titre' => 'Développement de l\'enfant: étapes essentielles',
+                'contenu' => 'Le développement pédiatrique suit des étapes clés que tout parent devrait connaître. De la naissance à 5 ans, les enfants acquièrent des compétences motrices, cognitives et sociales essentielles. Cet article décrit les jalons du développement normal et les signes de retard potentiel. Les pédiatres soulignent l\'importance de la stimulation précoce et de la détection rapide des problèmes. Nous fournissons des conseils pratiques pour soutenir le développement sain de votre enfant et savoir quand chercher une aide professionnelle.',
+                'specialite' => 3,
+            ],
+            [
+                'titre' => 'Santé digestive: l\'importance d\'une bonne nutrition',
+                'contenu' => 'La santé digestive est la fondation d\'une bonne santé générale. Les gastro-entérologues reconnaissent que la nutrition joue un rôle crucial dans la prévention des maladies digestives. Cet article explore les aliments bénéfiques, ceux à limiter, et l\'importance de la fibre alimentaire. Découvrez comment les fibres, les probiotiques et l\'hydratation soutiennent votre système digestif. Nous discutons également des problèmes courants comme l\'IBS, le reflux acide et les intolérances alimentaires, avec des stratégies de gestion pratiques et basées sur des preuves.',
+                'specialite' => 4,
+            ],
+        ];
+
+        foreach ($articles as $index => $articleData) {
+            $article = new Article();
+            $article->setTitre($articleData['titre']);
+            $article->setContenu($articleData['contenu']);
+            $article->setSpecialite($specialites[$articleData['specialite']]);
+            $article->setStatut('publie');
+            $article->setNbVues(rand(50, 500));
+            
+            // Associate with doctors
+            if (!empty($doctors)) {
+                $article->setAuteur($doctors[$index % count($doctors)]);
+            }
+
+            // Add tags
+            for ($i = 0; $i < 3; $i++) {
+                $article->addTag($tags[($index + $i) % count($tags)]);
+            }
+
+            $manager->persist($article);
+        }
+
+        $manager->flush();
+
+        // Create Product Categories
+        $categories = [];
+        $categoryNames = ['Antibiotiques', 'Anti-inflammatoires', 'Vitamines', 'Antihistaminiques', 'Antiacides'];
+        
+        foreach ($categoryNames as $name) {
+            $category = new ProductCategory();
+            $category->setName($name);
+            $manager->persist($category);
+            $categories[] = $category;
+        }
+
+        $manager->flush();
+
+        // Create Products
+        $products = [
+            ['name' => 'Amoxicilline 500mg', 'description' => 'Antibiotique efficace', 'price' => 12.50, 'stock' => 100, 'category' => 0, 'prescription' => true],
+            ['name' => 'Ibuprofène 400mg', 'description' => 'Anti-inflammatoire puissant', 'price' => 8.75, 'stock' => 150, 'category' => 1, 'prescription' => false],
+            ['name' => 'Vitamine C 1000mg', 'description' => 'Renforce l\'immunité', 'price' => 15.00, 'stock' => 200, 'category' => 2, 'prescription' => false],
+            ['name' => 'Claritine 10mg', 'description' => 'Antihistaminique antiallergique', 'price' => 10.50, 'stock' => 80, 'category' => 3, 'prescription' => false],
+            ['name' => 'Gaviscon Extra Fort', 'description' => 'Soulage les brûlures d\'estomac', 'price' => 7.25, 'stock' => 120, 'category' => 4, 'prescription' => false],
+            ['name' => 'Azithromycine 250mg', 'description' => 'Antibiotique macrolide', 'price' => 18.00, 'stock' => 60, 'category' => 0, 'prescription' => true],
+            ['name' => 'Vitamine D3 1000ui', 'description' => 'Santé osseuse', 'price' => 11.30, 'stock' => 180, 'category' => 2, 'prescription' => false],
+            ['name' => 'Paracétamol 500mg', 'description' => 'Antalgique et antipyrétique', 'price' => 6.50, 'stock' => 250, 'category' => 1, 'prescription' => false],
+        ];
+
+        foreach ($products as $productData) {
+            $product = new Product();
+            $product->setName($productData['name']);
+            $product->setDescription($productData['description']);
+            $product->setPrice($productData['price']);
+            $product->setStock($productData['stock']);
+            $product->setCategoryId($categories[$productData['category']]);
+            $product->setIsAvailable(true);
+            $product->setIsPrescriptionRequired($productData['prescription']);
+            $product->setBrand('Medilab');
+            
+            $manager->persist($product);
         }
 
         $manager->flush();

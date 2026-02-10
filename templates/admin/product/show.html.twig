@@ -29,8 +29,8 @@
                         <div class="col-md-6">
                             <h6 class="text-muted">Catégorie</h6>
                             <p class="fw-bold">
-                                {% if product.category %}
-                                    <span class="badge bg-info">{{ product.category.name }}</span>
+                                {% if product.categoryId %}
+                                    <span class="badge bg-info">{{ product.categoryId.name }}</span>
                                 {% else %}
                                     <span class="text-muted">-</span>
                                 {% endif %}
