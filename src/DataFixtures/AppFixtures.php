@@ -253,11 +253,11 @@ class AppFixtures extends Fixture
             $product->setDescription($productData['description']);
             $product->setPrice($productData['price']);
             $product->setStock($productData['stock']);
-            $product->setCategoryId($categories[$productData['category']]);
+            $product->setCategory($categories[$productData['category']]);
             $product->setIsAvailable(true);
             $product->setIsPrescriptionRequired($productData['prescription']);
             $product->setBrand('Medilab');
-            
+
             $manager->persist($product);
         }
 

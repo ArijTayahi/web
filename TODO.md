@@ -22,6 +22,13 @@
 - [ ] Test doctor consultation management (doctor role)
 - [ ] Test prescription access (both roles)
 
+# TODO: Run Full Test Suite
+
+- [x] Run PHPUnit unit tests (9 tests passed, 0 failed, 0 errors)
+- [x] Start Symfony development server (running on http://127.0.0.1:8001)
+- [ ] Run functional tests (Selenium tests failed due to ElementClickInterceptedException - likely Symfony toolbar interference; Python not recognized on Windows)
+- [ ] Fix functional test issues (resolve click interception, ensure Python is available)
+
 # TODO: Add Form Validation
 
 - [x] Add NotBlank constraint to doctor field

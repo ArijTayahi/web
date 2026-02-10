@@ -3,18 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\ProductCategory;
-use App\Form\ProductCategory1Type;
+use App\Form\ProductCategoryType;
 use App\Repository\ProductCategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/product/category')]
-final class ProductCategoryController extends AbstractController
+#[Route('/admin/master-data/categories')]
+class ProductCategoryController extends AbstractController
 {
-    #[Route(name: 'app_product_category_index', methods: ['GET'])]
+    #[Route('/', name: 'app_product_category_index', methods: ['GET'])]
     public function index(ProductCategoryRepository $productCategoryRepository): Response
     {
         return $this->render('product_category/index.html.twig', [
@@ -26,7 +26,7 @@ final class ProductCategoryController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $productCategory = new ProductCategory();
-        $form = $this->createForm(ProductCategory1Type::class, $productCategory);
+        $form = $this->createForm(ProductCategoryType::class, $productCategory);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -53,10 +53,11 @@ final class ProductCategoryController extends AbstractController
     #[Route('/{id}/edit', name: 'app_product_category_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, ProductCategory $productCategory, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ProductCategory1Type::class, $productCategory);
+        $form = $this->createForm(ProductCategoryType::class, $productCategory);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $productCategory->setUpdatedAt(new \DateTimeImmutable());
             $entityManager->flush();
 
             return $this->redirectToRoute('app_product_category_index', [], Response::HTTP_SEE_OTHER);
@@ -71,7 +72,7 @@ final class ProductCategoryController extends AbstractController
     #[Route('/{id}', name: 'app_product_category_delete', methods: ['POST'])]
     public function delete(Request $request, ProductCategory $productCategory, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$productCategory->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$productCategory->getId(), $request->request->get('_token'))) {
             $entityManager->remove($productCategory);
             $entityManager->flush();
         }

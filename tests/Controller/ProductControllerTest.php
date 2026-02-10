@@ -68,17 +68,19 @@ final class ProductControllerTest extends WebTestCase
     public function testShow(): void
     {
         $this->markTestIncomplete();
+        $category = new \App\Entity\ProductCategory();
+        $category->setName('Test Category');
+        $this->manager->persist($category);
+
         $fixture = new Product();
         $fixture->setName('My Title');
         $fixture->setDescription('My Title');
         $fixture->setPrice('My Title');
-        $fixture->setStock('My Title');
-        $fixture->setImage('My Title');
-        $fixture->setIs_available('My Title');
-        $fixture->setIs_prescription_required('My Title');
+        $fixture->setStock(10);
+        $fixture->setIsAvailable(true);
+        $fixture->setIsPrescriptionRequired(false);
         $fixture->setBrand('My Title');
-        $fixture->setExpire_at('My Title');
-        $fixture->setCategory_id('My Title');
+        $fixture->setCategory($category);
 
         $this->manager->persist($fixture);
         $this->manager->flush();
@@ -94,17 +96,19 @@ final class ProductControllerTest extends WebTestCase
     public function testEdit(): void
     {
         $this->markTestIncomplete();
+        $category = new \App\Entity\ProductCategory();
+        $category->setName('Test Category');
+        $this->manager->persist($category);
+
         $fixture = new Product();
         $fixture->setName('Value');
         $fixture->setDescription('Value');
         $fixture->setPrice('Value');
-        $fixture->setStock('Value');
-        $fixture->setImage('Value');
-        $fixture->setIs_available('Value');
-        $fixture->setIs_prescription_required('Value');
+        $fixture->setStock(10);
+        $fixture->setIsAvailable(true);
+        $fixture->setIsPrescriptionRequired(false);
         $fixture->setBrand('Value');
-        $fixture->setExpire_at('Value');
-        $fixture->setCategory_id('Value');
+        $fixture->setCategory($category);
 
         $this->manager->persist($fixture);
         $this->manager->flush();
@@ -132,28 +136,27 @@ final class ProductControllerTest extends WebTestCase
         self::assertSame('Something New', $fixture[0]->getDescription());
         self::assertSame('Something New', $fixture[0]->getPrice());
         self::assertSame('Something New', $fixture[0]->getStock());
-        self::assertSame('Something New', $fixture[0]->getImage());
-        self::assertSame('Something New', $fixture[0]->getIs_available());
-        self::assertSame('Something New', $fixture[0]->getIs_prescription_required());
         self::assertSame('Something New', $fixture[0]->getBrand());
-        self::assertSame('Something New', $fixture[0]->getExpire_at());
-        self::assertSame('Something New', $fixture[0]->getCategory_id());
+        self::assertSame(true, $fixture[0]->isAvailable());
+        self::assertSame(false, $fixture[0]->isPrescriptionRequired());
     }
 
     public function testRemove(): void
     {
         $this->markTestIncomplete();
+        $category = new \App\Entity\ProductCategory();
+        $category->setName('Test Category');
+        $this->manager->persist($category);
+
         $fixture = new Product();
         $fixture->setName('Value');
         $fixture->setDescription('Value');
         $fixture->setPrice('Value');
-        $fixture->setStock('Value');
-        $fixture->setImage('Value');
-        $fixture->setIs_available('Value');
-        $fixture->setIs_prescription_required('Value');
+        $fixture->setStock(10);
+        $fixture->setIsAvailable(true);
+        $fixture->setIsPrescriptionRequired(false);
         $fixture->setBrand('Value');
-        $fixture->setExpire_at('Value');
-        $fixture->setCategory_id('Value');
+        $fixture->setCategory($category);
 
         $this->manager->persist($fixture);
         $this->manager->flush();

@@ -2,23 +2,26 @@
 
 namespace App\Form;
 
-use App\Entity\Product;
 use App\Entity\ProductCategory;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class ProductCategoryType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
-            ->add('products', EntityType::class, [
-                'class' => Product::class,
-                'choice_label' => 'id',
-                'multiple' => true,
+            ->add('name', TextType::class, [
+                'label' => 'Nom de la catégorie',
+                'attr' => ['class' => 'form-control']
+            ])
+            ->add('description', TextareaType::class, [
+                'label' => 'Description',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'rows' => 3]
             ])
         ;
     }

@@ -3,10 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
-use BcMath\Number;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
@@ -20,40 +16,44 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(length: 500, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column]
-    private ?float $price = null;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    private ?string $price = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column]
     private ?int $stock = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
-    private ?bool $is_available = null;
+    private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $is_prescription_required = null;
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?ProductCategory $category = null;
+
+    #[ORM\Column]
+    private ?bool $isAvailable = null;
+
+    #[ORM\Column]
+    private ?bool $isPrescriptionRequired = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $brand = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $expire_at = null;
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?ProductCategory $category_id = null;
- 
-    public function __construct() { }
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
-    } 
+    }
 
     public function getName(): ?string
     {
@@ -79,12 +79,12 @@ class Product
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): static
+    public function setPrice(string $price): static
     {
         $this->price = $price;
 
@@ -96,45 +96,69 @@ class Product
         return $this->stock;
     }
 
-    public function setStock(?int $stock): static
+    public function setStock(int $stock): static
     {
         $this->stock = $stock;
 
         return $this;
     }
 
-    public function getImage(): ?string
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->image;
+        return $this->createdAt;
     }
 
-    public function setImage(?string $image): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->image = $image;
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getCategory(): ?ProductCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?ProductCategory $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }
 
     public function isAvailable(): ?bool
     {
-        return $this->is_available;
+        return $this->isAvailable;
     }
 
-    public function setIsAvailable(bool $is_available): static
+    public function setIsAvailable(bool $isAvailable): static
     {
-        $this->is_available = $is_available;
+        $this->isAvailable = $isAvailable;
 
         return $this;
     }
 
     public function isPrescriptionRequired(): ?bool
     {
-        return $this->is_prescription_required;
+        return $this->isPrescriptionRequired;
     }
 
-    public function setIsPrescriptionRequired(?bool $is_prescription_required): static
+    public function setIsPrescriptionRequired(bool $isPrescriptionRequired): static
     {
-        $this->is_prescription_required = $is_prescription_required;
+        $this->isPrescriptionRequired = $isPrescriptionRequired;
 
         return $this;
     }
@@ -150,28 +174,4 @@ class Product
 
         return $this;
     }
-
-    public function getExpireAt(): ?\DateTimeImmutable
-    {
-        return $this->expire_at;
-    }
-
-    public function setExpireAt(?\DateTimeImmutable $expire_at): static
-    {
-        $this->expire_at = $expire_at;
-
-        return $this;
-    }
-
-    public function getCategoryId(): ?ProductCategory
-    {
-        return $this->category_id;
-    }
-
-    public function setCategoryId(?ProductCategory $category_id): static
-    {
-        $this->category_id = $category_id;
-
-        return $this;
-    } 
 }
