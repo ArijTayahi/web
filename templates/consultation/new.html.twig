@@ -145,7 +145,7 @@
                             <!-- Type Field -->
                             <div class="col-md-6">
                                 <div class="form-floating position-relative">
-                                    {{ form_widget(form.type, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_widget(form.type, {'attr': {'class': 'form-select', 'id': 'consultation_type'}}) }}
                                     {{ form_label(form.type, '🏥 Type de consultation') }}
                                     <i class="fas fa-stethoscope form-icon"></i>
                                 </div>
@@ -189,4 +189,12 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('consultation_type').addEventListener('change', function() {
+    if (this.value === 'online') {
+        window.location.href = '/consultation';
+    }
+});
+</script>
 {% endblock %}

@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 
 class ConsultationType extends AbstractType
 {
@@ -29,12 +30,21 @@ class ConsultationType extends AbstractType
                         ->where('d.isCertified = 1')
                         ->orderBy('u.username', 'ASC');
                 },
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Le choix d\'un médecin est obligatoire.',
+                    ]),
+                ],
             ])
             ->add('consultationDate', DateTimeType::class, [
                 'widget' => 'single_text',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'La date de consultation est obligatoire.',
+                    ]),
+                    new GreaterThanOrEqual([
+                        'value' => 'now',
+                        'message' => 'La date de consultation ne peut pas être antérieure à la date actuelle.',
                     ]),
                 ],
             ])
