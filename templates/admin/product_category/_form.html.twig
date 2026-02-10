@@ -1,0 +1,18 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="card-body">
+        <div class="form-group mb-4">
+            {{ form_label(form.name, 'Nom de la Catégorie') }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-control form-control-lg rounded-3'}}) }}
+            {{ form_errors(form.name) }}
+        </div>
+    </div>
+
+    <div class="card-footer bg-light">
+        <button type="submit" class="btn btn-primary btn-lg rounded-3">
+            <i class="fas fa-save"></i> Enregistrer
+        </button>
+        <a href="{{ path('app_admin_product_category_index') }}" class="btn btn-secondary btn-lg rounded-3 ms-2">
+            Annuler
+        </a>
+    </div>
+{{ form_end(form) }}

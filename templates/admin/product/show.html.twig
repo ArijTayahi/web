@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }} - Produits{% endblock %}
+
+{% block body %}
+<div class="container-fluid mt-4">
+    <a href="{{ path('app_admin_product_index') }}" class="btn btn-light mb-4">
+        <i class="fas fa-arrow-left"></i> Retour
+    </a>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body p-5">
+                    <h1 class="fw-bold mb-4">{{ product.name }}</h1>
+
+                    {% if product.image %}
+                        <img src="{{ product.image }}" alt="{{ product.name }}" class="img-fluid rounded-3 mb-4" style="max-height: 400px; width: 100%; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light rounded-3 mb-4 d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <i class="fas fa-pills fa-5x text-secondary opacity-50"></i>
+                        </div>
+                    {% endif %}
+
+                    <h5 class="fw-bold mb-3">Description</h5>
+                    <p class="text-muted mb-4">{{ product.description ?? 'Aucune description' }}</p>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Catégorie</h6>
+                            <p class="fw-bold">
+                                {% if product.category %}
+                                    <span class="badge bg-info">{{ product.category.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Marque</h6>
+                            <p class="fw-bold">{{ product.brand ?? '-' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Prix</h6>
+                            <p class="fw-bold text-success fs-5">{{ product.price|number_format(2, '.', ',') }} DT</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Stock</h6>
+                            <p class="fw-bold">
+                                <span class="badge bg-{{ product.stock > 10 ? 'success' : (product.stock > 0 ? 'warning' : 'danger') }}">
+                                    {{ product.stock }} unités
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Disponible</h6>
+                            <p class="fw-bold">
+                                <span class="badge bg-{{ product.isAvailable ? 'success' : 'danger' }}">
+                                    {{ product.isAvailable ? 'Oui' : 'Non' }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Sur Ordonnance</h6>
+                            <p class="fw-bold">
+                                <span class="badge bg-{{ product.isPrescriptionRequired ? 'danger' : 'secondary' }}">
+                                    {{ product.isPrescriptionRequired ? 'Oui' : 'Non' }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if product.expireAt %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-muted">Date d'Expiration</h6>
+                                <p class="fw-bold">{{ product.expireAt|date('d/m/Y') }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Actions</h6>
+                </div>
+                <div class="card-body">
+                    <a href="{{ path('app_product_edit', {id: product.id}) }}" class="btn btn-warning w-100 mb-2">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer le produit "{{ product.name }}" ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form method="post" action="{{ path('app_product_delete', {id: product.id}) }}" style="display: inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
