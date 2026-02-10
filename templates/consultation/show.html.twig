@@ -14,7 +14,7 @@
             </tr>
             <tr>
                 <th>Médecin</th>
-                <td>{{ consultation.doctor.user.username }}</td>
+                <td>{{ consultation.doctor ? consultation.doctor.user.username : 'Non assigné' }}</td>
             </tr>
             <tr>
                 <th>Date</th>

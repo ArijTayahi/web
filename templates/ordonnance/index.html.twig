@@ -22,7 +22,7 @@
             <tr>
                 <td>{{ ordonnance.id }}</td>
                 <td>{{ ordonnance.consultation.consultationDate|date('d/m/Y H:i') }}</td>
-                <td>{{ ordonnance.doctor.user.username }}</td>
+                <td>{{ ordonnance.doctor ? ordonnance.doctor.user.username : 'Non assigné' }}</td>
                 <td>{{ ordonnance.content|slice(0, 50) }}...</td>
                 <td>{{ ordonnance.createdAt|date('d/m/Y H:i') }}</td>
                 <td>

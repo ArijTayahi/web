@@ -31,7 +31,7 @@
                 <tbody>
                     {% for doc in documents %}
                         <tr>
-                            <td>{{ doc.doctor.user.username }}</td>
+                            <td>{{ doc.doctor ? doc.doctor.user.username : 'Non assigné' }}</td>
                             <td>{{ doc.doctor.licenseCode ?: 'N/A' }}</td>
                             <td>
                                 <a href="{{ asset('uploads/doctors/' ~ doc.folderName ~ '/' ~ doc.storedName) }}" target="_blank">View PDF</a>

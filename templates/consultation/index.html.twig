@@ -23,7 +23,7 @@
         {% for consultation in consultations %}
             <tr>
                 <td>{{ consultation.id }}</td>
-                <td>{{ consultation.doctor.user.username }}</td>
+                <td>{{ consultation.doctor ? consultation.doctor.user.username : 'Non assigné' }}</td>
                 <td>{{ consultation.consultationDate|date('d/m/Y H:i') }}</td>
                 <td>{{ consultation.type }}</td>
                 <td>{{ consultation.status }}</td>

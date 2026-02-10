@@ -91,7 +91,7 @@
                                         <small class="text-muted">Doctor</small>
                                         <p class="fw-bold mb-1">
                                             {% if consultation.doctor %}
-                                                Dr. {{ consultation.doctor.user.username }}
+                                                Dr. {{ consultation.doctor ? consultation.doctor.user.username : 'Non assigné' }}
                                             {% else %}
                                                 Not assigned
                                             {% endif %}
