@@ -8,66 +8,111 @@
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">📋 Mes consultations</h4>
         </div>
+
         <div class="card-body">
             {% if consultations is empty %}
-                <div class="alert alert-info">
-                    Aucune consultation pour le moment.
-                </div>
+                <div class="alert alert-info">Aucune consultation.</div>
             {% else %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Médecin</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Notes</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for consultation in consultations %}
                             <tr>
-                                <th>#ID</th>
-                                <th>{{ is_granted('ROLE_PHYSICIAN') ? 'Patient' : 'Médecin' }}</th>
-                                <th>Type</th>
-                                <th>Date</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
+                                <td>Dr. {{ consultation.medecin.username }}</td>
+
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        {{ consultation.type }}
+                                    </span>
+                                </td>
+
+                                <td>{{ consultation.dateDebut|date('d/m/Y H:i') }}</td>
+
+                                <td>
+                                    <span class="badge bg-warning">
+                                        {{ consultation.status }}
+                                    </span>
+                                </td>
+
+                                <td>{{ consultation.notes ?: '-' }}</td>
+
+                                <td class="text-end">
+                                    <!-- VOIR -->
+                                    <a href="{{ path('app_consultation_show', {id: consultation.id}) }}"
+                                       class="btn btn-sm btn-outline-primary">👁️</a>
+
+                                    <!-- MODIFIER -->
+                                    {% if consultation.status == 'EN_ATTENTE' %}
+                                        <a href="{{ path('app_consultation_edit', {id: consultation.id}) }}"
+                                           class="btn btn-sm btn-outline-warning">✏️</a>
+                                    {% endif %}
+
+                                    <!-- SUPPRIMER -->
+                                    {% if consultation.status == 'EN_ATTENTE' %}
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-consultation-id="{{ consultation.id }}" data-csrf="{{ csrf_token('delete_consultation_' ~ consultation.id) }}" data-url="{{ path('app_consultation_delete', {id: consultation.id}) }}">🗑️</button>
+                                    {% endif %}
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {% for consultation in consultations %}
-                                <tr>
-                                    <td>{{ consultation.id }}</td>
-                                    <td>
-                                        {% if is_granted('ROLE_PHYSICIAN') %}
-                                            {{ consultation.patient.username }}
-                                        {% else %}
-                                            Dr. {{ consultation.medecin.username }}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if consultation.type == 'EN_LIGNE' %}
-                                            <span class="badge bg-info">📹 En ligne</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">🏥 Cabinet</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ consultation.dateDebut|date('d/m/Y H:i') }}</td>
-                                    <td>
-                                        {% if consultation.status == 'EN_ATTENTE' %}
-                                            <span class="badge bg-warning">En attente</span>
-                                        {% elseif consultation.status == 'EN_COURS' %}
-                                            <span class="badge bg-primary">En cours</span>
-                                        {% elseif consultation.status == 'TERMINEE' %}
-                                            <span class="badge bg-success">Terminée</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">Annulée</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{{ path('app_consultation_show', {id: consultation.id}) }}" class="btn btn-sm btn-outline-primary">
-                                            Voir
-                                        </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+
+
+
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Modal de confirmation de suppression -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Êtes-vous sûr de vouloir supprimer cette consultation ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="post" class="d-inline">
+                    <input type="hidden" name="_token" value="">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteForm = document.getElementById('deleteForm');
+    const csrfTokenInput = deleteForm.querySelector('input[name="_token"]');
+
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const consultationId = button.getAttribute('data-consultation-id');
+        const csrfToken = button.getAttribute('data-csrf');
+        const actionUrl = window.location.origin + '/consultation/' + consultationId + '/delete';
+
+        deleteForm.setAttribute('action', actionUrl);
+        csrfTokenInput.value = csrfToken;
+    });
+});
+</script>
 {% endblock %}

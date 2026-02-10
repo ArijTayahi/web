@@ -19,8 +19,8 @@ class SessionVisio
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTime $starteAt = null;
+  #[ORM\Column(nullable: true)]
+private ?\DateTime $startedAt = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTime $endedAt = null;
@@ -56,19 +56,19 @@ class SessionVisio
 
     public function setCreateAt(\DateTimeImmutable $createdAt): static
     {
-        $this->createAt = $createdAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getStarteAt(): ?\DateTime
+    public function getStartedAt(): ?\DateTime
     {
-        return $this->starteAt;
+        return $this->startedAt;
     }
 
-    public function setStarteAt(?\DateTime $starteAt): static
+    public function setStartedAt(?\DateTime $startedAt): static
     {
-        $this->starteAt = $starteAt;
+        $this->startedAt = $startedAt;
 
         return $this;
     }

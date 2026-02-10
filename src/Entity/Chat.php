@@ -40,7 +40,6 @@ class Chat
     public function setMessage(string $message): static
     {
         $this->message = $message;
-
         return $this;
     }
 
@@ -52,20 +51,30 @@ class Chat
     public function setSenderRole(string $senderRole): static
     {
         $this->senderRole = $senderRole;
-
         return $this;
     }
 
-    public function getCreateAt(): ?\DateTimeImmutable
+    // ✅ Bon noms (CreatedAt)
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    // ✅ (Optionnel) aliases pour ne rien casser si tu avais déjà utilisé getCreateAt/setCreateAt
+    public function getCreateAt(): ?\DateTimeImmutable
+    {
+        return $this->getCreatedAt();
+    }
+
     public function setCreateAt(\DateTimeImmutable $createdAt): static
     {
-        $this->createAt = $createdAt;
-
-        return $this;
+        return $this->setCreatedAt($createdAt);
     }
 
     public function getConsultation(): ?Consultation
@@ -76,7 +85,6 @@ class Chat
     public function setConsultation(?Consultation $consultation): static
     {
         $this->consultation = $consultation;
-
         return $this;
     }
 }

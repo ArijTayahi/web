@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\SalleAttenteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: SalleAttenteRepository::class)]
@@ -13,15 +14,21 @@ class SalleAttente
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $arriveAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
+    private \DateTimeImmutable $arriveAt;
 
-    #[ORM\Column(length: 50)]
-    private ?string $status = null;
+    #[ORM\Column(length: 50, nullable: false)]
+    private string $status;
 
     #[ORM\OneToOne(inversedBy: 'salleAttente', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Consultation $consultation = null;
+
+    public function __construct()
+    {
+        $this->arriveAt = new \DateTimeImmutable();
+        $this->status = 'EN_ATTENTE';
+    }
 
     public function getId(): ?int
     {

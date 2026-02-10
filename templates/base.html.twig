@@ -50,6 +50,7 @@
         </div>
     </div>
 
+    {% if app.user %}
     {# ================= NAVBAR (AJOUT) ================= #}
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
         <div class="container">
@@ -66,13 +67,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
                     </li>
+    <li class="nav-item">
+       <a class="nav-link" href="{{ path('app_mes_consultations') }}">
+    📋 Mes consultations
+</a>
 
-                    {% if app.user %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_mes_consultations') }}">
-                                📋 Mes consultations
-                            </a>
-                        </li>
+    </li>
+
+
 
                         {% if is_granted('ROLE_PATIENT') %}
                             <li class="nav-item">
@@ -112,11 +114,9 @@
                                 </a>
                             </li>
                         {% endif %}
-                    {% endif %}
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
-                    {% if app.user %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 👤 {{ app.user.username }}
@@ -161,22 +161,11 @@
                                 </li>
                             </ul>
                         </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_login') }}">
-                                🔐 Connexion
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_register') }}">
-                                📝 Inscription
-                            </a>
-                        </li>
-                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+    {% endif %}
 
     {% block content %}{% endblock %}
     {% block body %}{% endblock %}

@@ -60,29 +60,7 @@ class AppFixtures extends Fixture
         $admin->addRoleEntity($roleAdmin);
         $manager->persist($admin);
 
-        // Doctor users with profiles
-        $doctors = [
-            ['username' => 'dr.smith', 'email' => 'dr.smith@medilab.local', 'password' => 'DoctorSmith@2026', 'license' => 'LIC-001-SMITH'],
-            ['username' => 'dr.johnson', 'email' => 'dr.johnson@medilab.local', 'password' => 'DoctorJohnson@2026', 'license' => 'LIC-002-JOHNSON'],
-            ['username' => 'dr.williams', 'email' => 'dr.williams@medilab.local', 'password' => 'DoctorWilliams@2026', 'license' => 'LIC-003-WILLIAMS'],
-            ['username' => 'dr.brown', 'email' => 'dr.brown@medilab.local', 'password' => 'DoctorBrown@2026', 'license' => 'LIC-004-BROWN'],
-        ];
 
-        foreach ($doctors as $doctorData) {
-            $user = new User();
-            $user->setUsername($doctorData['username']);
-            $user->setEmail($doctorData['email']);
-            $user->setPassword($this->passwordHasher->hashPassword($user, $doctorData['password']));
-            $user->setIsActive(true);
-            $user->addRoleEntity($rolePhysician);
-            $manager->persist($user);
-
-            $doctor = new Doctor();
-            $doctor->setUser($user);
-            $doctor->setLicenseCode($doctorData['license']);
-            $doctor->setIsCertified(true);
-            $manager->persist($doctor);
-        }
 
         // Patient users with profiles
         $patients = [

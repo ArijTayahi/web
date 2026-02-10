@@ -118,13 +118,13 @@
                         {% endif %}
                     {% endif %}
 
-                    <!-- Ordonnance -->
-                    {% if consultation.ordonnance %}
-                        <hr>
-                        <a href="{{ path('app_ordonnance_show', {id: consultation.ordonnance.id}) }}" class="btn btn-outline-primary">
-                            📄 Voir l'ordonnance
-                        </a>
-                    {% endif %}
+         {% if consultation.no %}
+    <hr>
+    <a href="{{ path('app_ordonnance_show', {id: consultation.no.id}) }}" class="btn btn-outline-primary">
+        📄 Voir l'ordonnance
+    </a>
+{% endif %}
+
 
                     <!-- Paiement -->
                     {% if consultation.paiement %}
@@ -230,4 +230,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 {% endblock %}

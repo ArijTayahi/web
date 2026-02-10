@@ -1,0 +1,4 @@
+- [x] Add deletedAt field to Consultation entity
+- [x] Create migration for deletedAt column
+- [x] Update ConsultationController delete method for soft delete with 15-minute check
+- [x] Update mesConsultations to exclude soft deleted consultations

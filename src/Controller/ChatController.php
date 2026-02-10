@@ -30,13 +30,14 @@ final class ChatController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        if ($consultation->getPatient()->getId() !== $user->getId() 
-            && $consultation->getMedecin()->getId() !== $user->getId()) {
+        if (
+            $consultation->getPatient()->getId() !== $user->getId()
+            && $consultation->getMedecin()->getId() !== $user->getId()
+        ) {
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
         $message = trim((string) $request->request->get('message'));
-
         if ($message === '') {
             return new JsonResponse(['error' => 'Message vide'], 400);
         }
@@ -48,6 +49,9 @@ final class ChatController extends AbstractController
         $chat->setMessage($message);
         $chat->setSenderRole($senderRole);
 
+        // ton entity a createdAt non-null -> on doit le remplir
+        $chat->setCreateAt(new \DateTimeImmutable());
+
         $entityManager->persist($chat);
         $entityManager->flush();
 
@@ -55,7 +59,7 @@ final class ChatController extends AbstractController
             'status' => 'ok',
             'message' => $message,
             'senderRole' => $senderRole,
-            'createdAt' => $chat->getCreatedAt()->format('H:i'),
+            'createdAt' => $chat->getCreateAt()?->format('H:i'),
         ]);
     }
 
@@ -74,8 +78,10 @@ final class ChatController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        if ($consultation->getPatient()->getId() !== $user->getId() 
-            && $consultation->getMedecin()->getId() !== $user->getId()) {
+        if (
+            $consultation->getPatient()->getId() !== $user->getId()
+            && $consultation->getMedecin()->getId() !== $user->getId()
+        ) {
             return new JsonResponse(['error' => 'Accès refusé'], 403);
         }
 
@@ -84,7 +90,7 @@ final class ChatController extends AbstractController
             $messages[] = [
                 'message' => $chat->getMessage(),
                 'senderRole' => $chat->getSenderRole(),
-                'createdAt' => $chat->getCreatedAt()->format('H:i'),
+                'createdAt' => $chat->getCreateAt()?->format('H:i'),
             ];
         }
 

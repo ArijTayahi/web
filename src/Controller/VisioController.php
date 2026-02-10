@@ -6,7 +6,6 @@ use App\Entity\Consultation;
 use App\Entity\SessionVisio;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,16 +25,25 @@ final class VisioController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        if (!$consultation->getSessionVisio()) {
+        $session = $consultation->getSessionVisio();
+
+        if (!$session) {
             $session = new SessionVisio();
             $session->setConsultation($consultation);
             $session->setStatus('STARTED');
             $session->setStartedAt(new \DateTime());
 
+            // si tu veux: créer roomId si pas fait ailleurs
+            if (!$session->getRoomId()) {
+                $session->setRoomId('room_' . uniqid('', true));
+            }
+
+            // createdAt non-null -> on le set
+            $session->setCreateAt(new \DateTimeImmutable());
+
             $entityManager->persist($session);
             $entityManager->flush();
         } else {
-            $session = $consultation->getSessionVisio();
             if ($session->getStatus() === 'CREATED') {
                 $session->setStatus('STARTED');
                 $session->setStartedAt(new \DateTime());
@@ -60,8 +68,10 @@ final class VisioController extends AbstractController
         $user = $this->getUser();
         $consultation = $session->getConsultation();
 
-        if ($consultation->getPatient()->getId() !== $user->getId() 
-            && $consultation->getMedecin()->getId() !== $user->getId()) {
+        if (
+            $consultation->getPatient()->getId() !== $user->getId()
+            && $consultation->getMedecin()->getId() !== $user->getId()
+        ) {
             throw $this->createAccessDeniedException();
         }
 
