@@ -193,14 +193,17 @@ class ArticleRepository extends ServiceEntityRepository
 
     public function findArticlesGroupedByMonth(): array
     {
-        return $this->createQueryBuilder('a')
-            ->select("DATE_FORMAT(a.dateCreation, '%Y-%m') as month, COUNT(a.id) as count")
-            ->where('a.statut = :statut')
-            ->setParameter('statut', 'publie')
-            ->groupBy('month')
-            ->orderBy('month', 'DESC')
-            ->setMaxResults(12)
-            ->getQuery()
-            ->getResult();
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "
+            SELECT DATE_FORMAT(a.date_creation, '%Y-%m') as month, COUNT(a.id) as count
+            FROM article a
+            WHERE a.statut = 'publie'
+            GROUP BY month
+            ORDER BY month DESC
+            LIMIT 12
+        ";
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->executeQuery();
+        return $result->fetchAllAssociative();
     }
 }

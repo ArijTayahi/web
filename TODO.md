@@ -1,41 +1,21 @@
-# TODO: Fix Intelephense Errors in Entities
+# TODO List for MedTime Homepage and Patient Dashboard Updates
 
-- [x] Update Doctor.php removeDocument: Change setDoctor($this) to setDoctor(null)
-- [x] Update Doctor.php removeConsultation: Use a variable for $consultation->getDoctor() to avoid type mismatch
-- [x] Update Patient.php removeConsultation: Use a variable for $consultation->getPatient() to resolve the error
+## Homepage Modifications
+- [ ] Modify templates/home/index.html.twig to display only "Connexion" and "Créer un compte" buttons in a centered layout, removing the full landing page content.
 
-# TODO: Fix Twig Null Pointer Errors
+## Patient Dashboard Updates
+- [ ] Add a top navbar to templates/dashboard/patient_dashboard.html.twig with buttons: Prendre un Rendez-vous, Produits médicaux, Actualités médicales ou Publications médecins.
+- [ ] Enhance the sidebar to show patient profile and sub-buttons under "Appointments" (RDV): all consultations, all prescriptions, cabinet appointment, online appointment, all invoices, evaluate doctor. Use collapsible sections or JavaScript for interactivity.
+- [ ] Implement availability checks for online appointments using Availability entity.
+- [ ] Integrate online payment for online consultations using Paiement entity.
+- [ ] Allow product purchases based on prescriptions, linking to Product entity.
+- [ ] Add evaluation feature after consultations using Satisfaction entity.
 
-- [x] Fix consultation/index.html.twig: Add null check for doctor.user.username
-- [x] Fix consultation/show.html.twig: Add null check for doctor.user.username
-- [x] Fix ordonnance/index.html.twig: Add null check for doctor.user.username
-- [x] Fix patient/consultations.html.twig: Add null check for doctor.user.username
-- [x] Fix admin/doctor_verifications.html.twig: Add null check for doctor.user.username
+## Controller and Route Updates
+- [ ] Verify and create missing routes in controllers (e.g., RendezVousController, PaiementController) for new functionalities.
+- [ ] Ensure HomeController redirects logged-in users correctly.
 
-# TODO: Test Consultation Module
-
-- [ ] Test consultation creation (patient role)
-- [ ] Test consultation listing (patient role)
-- [ ] Test consultation details view (patient role)
-- [ ] Test consultation editing (patient role)
-- [ ] Test consultation cancellation (patient role)
-- [ ] Test doctor consultation management (doctor role)
-- [ ] Test prescription access (both roles)
-
-# TODO: Run Full Test Suite
-
-- [x] Run PHPUnit unit tests (9 tests passed, 0 failed, 0 errors)
-- [x] Start Symfony development server (running on http://127.0.0.1:8001)
-- [ ] Run functional tests (Selenium tests failed due to ElementClickInterceptedException - likely Symfony toolbar interference; Python not recognized on Windows)
-- [ ] Fix functional test issues (resolve click interception, ensure Python is available)
-
-# TODO: Add Form Validation
-
-- [x] Add NotBlank constraint to doctor field
-- [x] Add NotBlank constraint to consultationDate field
-- [x] Add GreaterThanOrEqual constraint to consultationDate (not before now)
-- [x] Add NotBlank constraint to type field
-
-# TODO: Add Online Consultation Redirection
-
-- [x] Add JavaScript to redirect to /consultation when "Online" is selected
+## Testing and Followup
+- [ ] Test availability checks, payments, evaluations, and product purchases.
+- [ ] Ensure responsive design for new navbar and sidebar.
+- [ ] Verify no changes to existing code; only additions as per requirements.

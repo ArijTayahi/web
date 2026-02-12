@@ -1,51 +1,210 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Product index{% endblock %}
+{% block title %}Gestion des Produits - MedTime{% endblock %}
 
 {% block content %}
-    <h1>Product index</h1>
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 fw-bold text-primary mb-2">
+                <i class="fas fa-boxes me-2"></i>Gestion des Produits
+            </h1>
+            <p class="text-muted mb-0">Administrer le catalogue de produits médicaux</p>
+        </div>
+        <a href="{{ path('app_product_new') }}" class="btn btn-medical btn-lg shadow-medical">
+            <i class="fas fa-plus me-2"></i>Ajouter Produit
+        </a>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Image</th>
-                <th>Is_available</th>
-                <th>Is_prescription_required</th>
-                <th>Brand</th>
-                <th>Expire_at</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Products Grid -->
+    <div class="row g-4">
         {% for product in products %}
-            <tr>
-                <td>{{ product.id }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.stock }}</td>
-                <td>{{ product.image }}</td>
-                <td>{{ product.isAvailable ? 'Yes' : 'No' }}</td>
-                <td>{{ product.isPrescriptionRequired ? 'Yes' : 'No' }}</td>
-                <td>{{ product.brand }}</td>
-                <td>{{ product.expireAt ? product.expireAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_product_show', {'id': product.id}) }}">show</a>
-                    <a href="{{ path('app_product_edit', {'id': product.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="11">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <div class="col-lg-6 col-xl-4">
+                <div class="card card-medical h-100 animate-fade-in">
+                    <div class="card-header bg-light border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-medical-primary text-white">
+                                <i class="fas fa-hashtag me-1"></i>{{ product.id }}
+                            </span>
+                            <div class="d-flex gap-2">
+                                {% if product.isPrescriptionRequired %}
+                                    <span class="badge bg-danger text-white">
+                                        <i class="fas fa-prescription me-1"></i>Ordonnance
+                                    </span>
+                                {% endif %}
+                                {% if product.stock > 10 %}
+                                    <span class="badge bg-success text-white">
+                                        <i class="fas fa-check-circle me-1"></i>En stock
+                                    </span>
+                                {% elseif product.stock > 0 %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Stock faible
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary text-white">
+                                        <i class="fas fa-times-circle me-1"></i>Rupture
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
 
-    <a href="{{ path('app_product_new') }}">Create new</a>
+                    <div class="card-body">
+                        <!-- Product Name -->
+                        <div class="mb-3">
+                            <h5 class="card-title fw-bold text-dark mb-2">{{ product.name }}</h5>
+                            {% if product.brand %}
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-tag text-medical-primary me-1"></i>{{ product.brand }}
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Category -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-folder text-medical-primary me-2"></i>
+                                <strong class="text-dark">Catégorie</strong>
+                            </div>
+                            <span class="badge bg-light text-dark border">
+                                {{ product.category ? product.category.name : 'Non catégorisé' }}
+                            </span>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-euro-sign text-medical-primary me-2"></i>
+                                <strong class="text-dark">Prix</strong>
+                            </div>
+                            <span class="h5 text-success fw-bold">
+                                {{ product.price|number_format(2, ',', ' ') }} €
+                            </span>
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-warehouse text-medical-primary me-2"></i>
+                                <strong class="text-dark">Stock</strong>
+                            </div>
+                            <span class="badge
+                                {% if product.stock > 10 %}bg-success
+                                {% elseif product.stock > 0 %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ product.stock }} unités
+                            </span>
+                        </div>
+
+                        <!-- Description Preview -->
+                        {% if product.description %}
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-info-circle text-medical-primary me-2"></i>
+                                    <strong class="text-dark">Description</strong>
+                                </div>
+                                <div class="bg-light p-3 rounded small">
+                                    {{ product.description|slice(0, 100) }}{% if product.description|length > 100 %}...{% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-footer bg-transparent border-0">
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ path('app_product_show', {'id': product.id}) }}"
+                               class="btn btn-outline-info btn-sm flex-fill">
+                                <i class="fas fa-eye me-1"></i>Voir
+                            </a>
+
+                            <a href="{{ path('app_product_edit', {'id': product.id}) }}"
+                               class="btn btn-outline-warning btn-sm flex-fill">
+                                <i class="fas fa-edit me-1"></i>Modifier
+                            </a>
+
+                            <button type="button" class="btn btn-outline-danger btn-sm flex-fill"
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">
+                                <i class="fas fa-trash me-1"></i>Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header border-danger">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le produit <strong>{{ product.name }}</strong> ?</p>
+                    <p class="text-muted small">Cette action ne peut pas être annulée.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}" style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                        <button type="submit" class="btn btn-danger">Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="card card-medical text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-box-open fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted mb-3">Aucun produit trouvé</h4>
+                        <p class="text-muted mb-4">
+                            Le catalogue de produits est vide. Commencez par ajouter votre premier produit.
+                        </p>
+                        <a href="{{ path('app_product_new') }}" class="btn btn-medical">
+                            <i class="fas fa-plus me-2"></i>Ajouter le premier produit
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-medical:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(30, 144, 255, 0.15);
+    }
+
+    .btn-medical {
+        background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-medical:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.3);
+        color: white;
+    }
+</style>
 {% endblock %}

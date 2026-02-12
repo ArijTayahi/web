@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Medilab{% endblock %}</title>
-    <meta name="description" content="Medilab Healthcare Platform">
+    <title>{% block title %}MedTime{% endblock %}</title>
+    <meta name="description" content="Plateforme de Santé MedTime">
 
     <!-- Favicon -->
     <link href="{{ asset('img/favicon.png') }}" rel="icon">
@@ -29,32 +29,38 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <div class="topbar d-flex align-items-center" style="background-color: #1E90FF;">
+    <!-- Topbar Médical -->
+    <div class="topbar d-flex align-items-center" style="background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%); box-shadow: 0 2px 10px rgba(30, 144, 255, 0.3);">
         <div class="container d-flex justify-content-center justify-content-md-between">
             <div class="contact-info d-flex align-items-center gap-3 text-white">
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-envelope text-white"></i>
-                    <a href="mailto:contact@example.com" class="text-white">contact@example.com</a>
+                    <a href="mailto:contact@medtime.tn" class="text-white text-decoration-none fw-semibold">contact@medtime.tn</a>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <i class="fas fa-phone text-white"></i>
-                    <span class="text-white">+1 5589 55488 55</span>
+                    <span class="text-white fw-semibold">+216 71 123 456</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-clock text-white"></i>
+                    <span class="text-white fw-semibold">24/7 Disponible</span>
                 </div>
             </div>
-            <div class="social-links d-none d-md-flex align-items-center">
-                <a href="#" class="twitter text-white"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="facebook text-white"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="instagram text-white"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="linkedin text-white"><i class="fab fa-linkedin-in"></i></a>
+            <div class="social-links d-none d-md-flex align-items-center gap-2">
+                <a href="#" class="text-white text-decoration-none fs-6" title="Suivez-nous sur Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white text-decoration-none fs-6" title="Suivez-nous sur Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white text-decoration-none fs-6" title="Suivez-nous sur Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white text-decoration-none fs-6" title="Connectez-vous sur LinkedIn"><i class="fab fa-linkedin-in"></i></a>
             </div>
         </div>
     </div>
 
-    {# ================= NAVBAR ================= #}
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    {# ================= NAVBAR PROFESSIONNELLE ================= #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-lg border-bottom border-light">
         <div class="container">
-            <a class="navbar-brand fw-bold text-primary" href="{{ path('app_home') }}">
-                🏥 Medilab
+            <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="{{ path('app_home') }}">
+                <i class="fas fa-hospital text-primary me-2 fs-4"></i>
+                <span class="fw-bold">MedTime</span>
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
@@ -68,42 +74,7 @@
                     </li>
 
                     {% if app.user %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_consultation_index') }}">
-                                📋 Mes consultations
-                            </a>
-                        </li>
-
-                        <!-- DROPDOWN APPOINTMENTS -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                📅 Appointments
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="{{ path('app_rendez_vous_index') }}">
-                                        <i class="bi bi-calendar-event me-2"></i>RendezVous
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ path('app_availability_index') }}">
-                                        <i class="bi bi-calendar-check me-2"></i>Availability
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ path('app_rendez_vous_new') }}">
-                                        <i class="bi bi-plus-circle me-2"></i>New RendezVous
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ path('app_availability_new') }}">
-                                        <i class="bi bi-plus-circle me-2"></i>New Availability
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
+                        <!-- PATIENT SECTION -->
                         {% if is_granted('ROLE_PATIENT') %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_consultation_new') }}">
@@ -111,33 +82,122 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_find_doctor') }}">
-                                    🔎 Trouver un médecin
+                                <a class="nav-link" href="{{ path('app_consultation_index') }}">
+                                    📋 Mes consultations
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_patient_consultations') }}">
+                                    💊 Mes ordonnances
                                 </a>
                             </li>
                         {% endif %}
 
+                        <!-- DOCTOR SECTION -->
                         {% if is_granted('ROLE_PHYSICIAN') %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_consultation_doctor_index') }}">
-                                    📅 Mes consultations (Médecin)
+                                    📅 Gérer consultations
                                 </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    💊 Ordonnances - Gestion prescriptions
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_ordonnance_doctor_index') }}">
+                                            <i class="bi bi-list-ul me-2"></i>Mes Ordonnances
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_ordonnance_new', {'consultationId': 0}) }}">
+                                            <i class="bi bi-plus-circle me-2"></i>Créer Ordonnance
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- DROPDOWN APPOINTMENTS FOR DOCTORS -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    📅 Disponibilités
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_availability_index') }}">
+                                            <i class="bi bi-calendar-check me-2"></i>Mes Disponibilités
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_availability_new') }}">
+                                            <i class="bi bi-plus-circle me-2"></i>Ajouter Disponibilité
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_rendez_vous_index') }}">
+                                            <i class="bi bi-calendar-event me-2"></i>Rendez-vous
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         {% endif %}
 
+                        <!-- ADMIN SECTION -->
                         {% if is_granted('ROLE_ADMIN') %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ path('app_admin_users') }}">
-                                    🛠️ Admin Users
+                                    🛠️ Gestion Utilisateurs
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_product_category_index') }}">
+                            <!-- DROPDOWN PRODUCTS FOR ADMIN -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     📦 Gestion Produits
                                 </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_product_index') }}">
+                                            <i class="bi bi-box-seam me-2"></i>Gérer Produits
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_product_category_index') }}">
+                                            <i class="bi bi-tags me-2"></i>Gérer Catégories
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <!-- DROPDOWN FORUM FOR ADMIN -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    💬 Gestion Forum
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_forum_dashboard') }}">
+                                            <i class="bi bi-bar-chart me-2"></i>Dashboard Forum
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_admin_article_index') }}">
+                                            <i class="bi bi-file-text me-2"></i>Gérer Articles
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_admin_tag_index') }}">
+                                            <i class="bi bi-hash me-2"></i>Gérer Tags
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ path('app_admin_specialite_index') }}">
+                                            <i class="bi bi-star me-2"></i>Gérer Spécialités
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         {% endif %}
 
+                        <!-- COMMON MODULES -->
                         <!-- DROPDOWN FORUM -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -159,70 +219,26 @@
                             </ul>
                         </li>
 
-                        <!-- DROPDOWN ORDONNANCES -->
-                        {% if is_granted('ROLE_PHYSICIAN') %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    💊 Ordonnances
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ path('app_ordonnance_doctor_index') }}">
-                                            <i class="bi bi-list-ul me-2"></i>Mes Ordonnances
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ path('app_ordonnance_new', {'consultationId': 0}) }}">
-                                            <i class="bi bi-plus-circle me-2"></i>Nouvelle Ordonnance
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        {% endif %}
-
-                        <!-- DROPDOWN PAIEMENT -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                💳 Paiements
-                            </a>
-                            <ul class="dropdown-menu">
-                                {% if is_granted('ROLE_PATIENT') %}
-                                    <li>
-                                        <a class="dropdown-item" href="{{ path('app_patient_consultations') }}">
-                                            <i class="bi bi-cash me-2"></i>Mes Paiements
-                                        </a>
-                                    </li>
-                                {% endif %}
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <li>
-                                        <a class="dropdown-item" href="{{ path('app_admin_appointments') }}">
-                                            <i class="bi bi-bar-chart me-2"></i>Gestion Paiements
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </li>
-
                         <!-- DROPDOWN MARKET -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                🛒 Market
+                                🛒 Pharmacie en ligne
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
                                     <a class="dropdown-item" href="{{ path('app_products') }}">
-                                        <i class="bi bi-shop me-2"></i>Browse Products
+                                        <i class="bi bi-shop me-2"></i>Parcourir Produits
                                     </a>
                                 </li>
                                 {% if is_granted('ROLE_ADMIN') %}
                                     <li>
                                         <a class="dropdown-item" href="{{ path('app_product_index') }}">
-                                            <i class="bi bi-gear me-2"></i>Manage Products
+                                            <i class="bi bi-gear me-2"></i>Gérer Produits
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{{ path('app_product_category_index') }}">
-                                            <i class="bi bi-tags me-2"></i>Manage Categories
+                                            <i class="bi bi-tags me-2"></i>Gérer Catégories
                                         </a>
                                     </li>
                                 {% endif %}
@@ -232,7 +248,7 @@
                         <!-- DROPDOWN VISIO -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                📹 Visio
+                                📹 Consultations en ligne
                             </a>
                             <ul class="dropdown-menu">
                                 {% if is_granted('ROLE_PATIENT') %}
@@ -245,7 +261,7 @@
                                 {% if is_granted('ROLE_PHYSICIAN') %}
                                     <li>
                                         <a class="dropdown-item" href="{{ path('app_consultation_doctor_index') }}">
-                                            <i class="bi bi-camera-video-fill me-2"></i>Gérer Visio Consultations
+                                            <i class="bi bi-camera-video-fill me-2"></i>Gérer Consultations Visio
                                         </a>
                                     </li>
                                 {% endif %}
@@ -339,5 +355,143 @@
     <script src="{{ asset('js/main.js') }}"></script>
 
     {% block javascripts %}{% endblock %}
+
+    <!-- Footer Professionnel -->
+    <footer class="footer bg-dark text-light mt-5">
+        <div class="container py-5">
+            <div class="row g-4">
+                <!-- Logo et Description -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-hospital text-medical-primary me-2 fs-3"></i>
+                        <h5 class="fw-bold mb-0">MedTime</h5>
+                    </div>
+                    <p class="mb-3 text-muted">
+                        Plateforme de santé digitale pour consultations médicales en ligne,
+                        pharmacie virtuelle et communauté médicale.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Liens Utiles -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold mb-3">Services</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{{ path('app_consultation_new') }}" class="text-muted text-decoration-none">
+                                <i class="fas fa-stethoscope me-2"></i>Consultations
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('app_products') }}" class="text-muted text-decoration-none">
+                                <i class="fas fa-pills me-2"></i>Pharmacie
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('app_forum_index') }}" class="text-muted text-decoration-none">
+                                <i class="fas fa-users me-2"></i>Forum
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ path('app_home') }}" class="text-muted text-decoration-none">
+                                <i class="fas fa-info-circle me-2"></i>À propos
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold mb-3">Support</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="fas fa-question-circle me-2"></i>FAQ
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="fas fa-shield-alt me-2"></i>Confidentialité
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="fas fa-file-contract me-2"></i>Conditions
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="fas fa-envelope me-2"></i>Contact
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact et Certifications -->
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="fw-bold mb-3">Contact</h6>
+                    <div class="mb-3">
+                        <i class="fas fa-map-marker-alt text-medical-primary me-2"></i>
+                        <span class="text-muted">123 Avenue de la Santé, Tunis</span>
+                    </div>
+                    <div class="mb-3">
+                        <i class="fas fa-phone text-medical-primary me-2"></i>
+                        <span class="text-muted">+216 71 123 456</span>
+                    </div>
+                    <div class="mb-3">
+                        <i class="fas fa-envelope text-medical-primary me-2"></i>
+                        <span class="text-muted">contact@medtime.tn</span>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="mt-4">
+                        <h6 class="fw-bold mb-3">Certifications</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <span class="badge bg-medical-primary text-white px-2 py-1">
+                                <i class="fas fa-certificate me-1"></i>HIPAA Compliant
+                            </span>
+                            <span class="badge bg-success text-white px-2 py-1">
+                                <i class="fas fa-shield-alt me-1"></i>RGPD
+                            </span>
+                            <span class="badge bg-info text-white px-2 py-1">
+                                <i class="fas fa-award me-1"></i>ISO 27001
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="border-top border-secondary">
+            <div class="container py-3">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <p class="mb-0 text-muted small">
+                            © 2024 MedTime. Tous droits réservés.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-0 text-muted small">
+                            Développé avec <i class="fas fa-heart text-danger"></i> pour la santé digitale | <a href="https://www.google.com" class="text-muted text-decoration-none">Google</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

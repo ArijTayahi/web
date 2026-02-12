@@ -44,6 +44,12 @@ class Product
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $brand = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $expireAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -171,6 +177,30 @@ class Product
     public function setBrand(?string $brand): static
     {
         $this->brand = $brand;
+
+        return $this;
+    }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getExpireAt(): ?\DateTimeImmutable
+    {
+        return $this->expireAt;
+    }
+
+    public function setExpireAt(?\DateTimeImmutable $expireAt): static
+    {
+        $this->expireAt = $expireAt;
 
         return $this;
     }

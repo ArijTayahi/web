@@ -1,10 +1,10 @@
 {
     "app": {
-        "path": "\/assets\/app-f4d6c38642739a52616bf03a70bbc4df.js",
+        "path": "\/assets\/app-fd9369579640cd491b62181934a54b98.js",
         "type": "js"
     },
     "\/assets\/js\/main.js": {
-        "path": "\/assets\/js\/main-2f0d56bcd89435eca145ac65e23834b2.js",
+        "path": "\/assets\/js\/main-48a6f9f427ac1723dd2991851909c972.js",
         "type": "js"
     },
     "@hotwired\/stimulus": {

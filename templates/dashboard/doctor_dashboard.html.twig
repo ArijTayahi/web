@@ -84,8 +84,8 @@
             
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
                 <div>
-                    <h1 class="h2 fw-bold text-dark">Good Morning, Dr. {{ app.user ? app.user.username : 'Physician' }}</h1>
-                    <p class="text-muted">You have <span class="text-primary fw-bold">4 appointments</span> scheduled for today.</p>
+                    <h1 class="h2 fw-bold text-dark">Bonjour, Dr. {{ app.user ? app.user.username : 'Médecin' }}</h1>
+                    <p class="text-muted">Vous avez <span class="text-primary fw-bold">4 rendez-vous</span> programmés pour aujourd'hui.</p>
                 </div>
                  <div class="d-flex align-items-center bg-white rounded-pill px-3 py-2 shadow-sm">
                     <i class="fas fa-clock text-secondary me-2"></i>
@@ -142,10 +142,12 @@
             <div class="row g-4 mb-4">
                 <!-- Appointments Table Card -->
                 <div class="col-lg-8">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
+                    <div class="card-medical shadow-medical h-100 overflow-hidden animate-fade-in">
                         <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
-                            <h5 class="fw-bold mb-0">Upcoming Appointments</h5>
-                            <button class="btn btn-sm btn-light rounded-pill px-3">View All</button>
+                            <h5 class="fw-bold mb-0 text-dark"><i class="fas fa-calendar-check me-2 text-medical-primary"></i>Rendez-vous à Venir</h5>
+                            <button class="btn btn-medical btn-sm rounded-pill px-3 fw-bold">
+                                <i class="fas fa-eye me-1"></i>Voir Tout
+                            </button>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">

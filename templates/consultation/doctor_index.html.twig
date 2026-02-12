@@ -1,53 +1,189 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Consultations{% endblock %}
+{% block title %}Gestion des Consultations{% endblock %}
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Consultations</h1>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold text-primary mb-2">
+                <i class="fas fa-user-md me-2"></i>Gestion des Consultations
+            </h1>
+            <p class="text-muted mb-0">Gérez les consultations de vos patients</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_ordonnance_new', {'consultationId': 0}) }}" class="btn btn-success shadow-medical">
+                <i class="fas fa-prescription me-2"></i>Nouvelle Ordonnance
+            </a>
+        </div>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Patient</th>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Statut</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Consultations Grid -->
+    <div class="row g-4">
         {% for consultation in consultations %}
-            <tr>
-                <td>{{ consultation.id }}</td>
-                <td>{{ consultation.patient.user.username }}</td>
-                <td>{{ consultation.consultationDate|date('d/m/Y H:i') }}</td>
-                <td>{{ consultation.type }}</td>
-                <td>{{ consultation.status }}</td>
-                <td>
-                    <form method="post" action="{{ path('app_consultation_change_status', {'id': consultation.id}) }}" style="display: inline;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('status' ~ consultation.id) }}">
-                        <select name="status" onchange="this.form.submit()">
-                            <option value="">Changer Statut</option>
-                            <option value="confirmed">Confirmé</option>
-                            <option value="cancelled">Annulé</option>
-                        </select>
-                    </form>
-                    <a href="{{ path('app_ordonnance_new', {'consultationId': consultation.id}) }}" class="btn btn-sm btn-success">Créer Ordonnance</a>
-                    <a href="{{ path('app_consultation_edit', {'id': consultation.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
-                    <form method="post" action="{{ path('app_consultation_doctor_delete', {'id': consultation.id}) }}" style="display: inline;">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ consultation.id) }}">
-                        <button class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
+            <div class="col-lg-6 col-xl-4">
+                <div class="card card-medical h-100 animate-fade-in">
+                    <div class="card-header bg-light border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-medical-primary text-white">
+                                <i class="fas fa-hashtag me-1"></i>{{ consultation.id }}
+                            </span>
+                            <span class="badge
+                                {% if consultation.status == 'confirmed' %}bg-success
+                                {% elseif consultation.status == 'cancelled' %}bg-danger
+                                {% elseif consultation.status == 'en attente' %}bg-warning text-dark
+                                {% else %}bg-secondary{% endif %}">
+                                {% if consultation.status == 'confirmed' %}
+                                    <i class="fas fa-check-circle me-1"></i>
+                                {% elseif consultation.status == 'cancelled' %}
+                                    <i class="fas fa-times-circle me-1"></i>
+                                {% elseif consultation.status == 'en attente' %}
+                                    <i class="fas fa-clock me-1"></i>
+                                {% else %}
+                                    <i class="fas fa-question-circle me-1"></i>
+                                {% endif %}
+                                {{ consultation.status|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Patient Info -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user-injured text-medical-primary me-2"></i>
+                                <strong class="text-dark">Patient</strong>
+                            </div>
+                            <p class="mb-0 text-muted">
+                                {{ consultation.patient.user.username }}
+                            </p>
+                        </div>
+
+                        <!-- Date & Time -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-calendar-alt text-medical-primary me-2"></i>
+                                <strong class="text-dark">Date & Heure</strong>
+                            </div>
+                            <p class="mb-0 text-muted">
+                                {{ consultation.consultationDate|date('d/m/Y à H:i') }}
+                            </p>
+                        </div>
+
+                        <!-- Type -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-tag text-medical-primary me-2"></i>
+                                <strong class="text-dark">Type</strong>
+                            </div>
+                            <span class="badge bg-light text-dark border">
+                                {{ consultation.type|capitalize }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-0">
+                        <div class="d-grid gap-2">
+                            <!-- Status Change Form -->
+                            <form method="post" action="{{ path('app_consultation_change_status', {'id': consultation.id}) }}"
+                                  class="mb-2">
+                                <input type="hidden" name="_token" value="{{ csrf_token('status' ~ consultation.id) }}">
+                                <div class="input-group">
+                                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="">Changer Statut</option>
+                                        <option value="confirmed" {% if consultation.status == 'confirmed' %}selected{% endif %}>
+                                            Confirmé
+                                        </option>
+                                        <option value="cancelled" {% if consultation.status == 'cancelled' %}selected{% endif %}>
+                                            Annulé
+                                        </option>
+                                    </select>
+                                </div>
+                            </form>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{{ path('app_ordonnance_new', {'consultationId': consultation.id}) }}"
+                                   class="btn btn-outline-success btn-sm flex-fill">
+                                    <i class="fas fa-prescription me-1"></i>Ordonnance
+                                </a>
+
+                                <a href="{{ path('app_consultation_edit', {'id': consultation.id}) }}"
+                                   class="btn btn-outline-primary btn-sm flex-fill">
+                                    <i class="fas fa-edit me-1"></i>Modifier
+                                </a>
+
+                                <form method="post" action="{{ path('app_consultation_doctor_delete', {'id': consultation.id}) }}"
+                                      style="display: inline;" class="flex-fill">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ consultation.id) }}">
+                                    <button class="btn btn-outline-danger btn-sm w-100"
+                                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette consultation ?')">
+                                        <i class="fas fa-trash me-1"></i>Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% else %}
-            <tr>
-                <td colspan="6">Aucune consultation trouvée.</td>
-            </tr>
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="card card-medical text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-times fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted mb-3">Aucune consultation trouvée</h4>
+                        <p class="text-muted mb-4">
+                            Vous n'avez encore aucune consultation programmée avec des patients.
+                        </p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ path('app_availability_new') }}" class="btn btn-medical">
+                                <i class="fas fa-plus me-2"></i>Ajouter Disponibilité
+                            </a>
+                            <a href="{{ path('app_ordonnance_new', {'consultationId': 0}) }}" class="btn btn-success">
+                                <i class="fas fa-prescription me-2"></i>Créer Ordonnance
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 </div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-medical:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(30, 144, 255, 0.15);
+    }
+
+    .btn-medical {
+        background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-medical:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.3);
+        color: white;
+    }
+</style>
 {% endblock %}

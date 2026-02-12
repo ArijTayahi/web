@@ -4,37 +4,133 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h1>Mes Ordonnances</h1>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold text-primary mb-2">
+                <i class="fas fa-prescription-bottle me-2"></i>Mes Ordonnances
+            </h1>
+            <p class="text-muted mb-0">Consultez vos prescriptions médicales</p>
+        </div>
+        <a href="{{ path('app_consultation_new') }}" class="btn btn-medical shadow-medical">
+            <i class="fas fa-plus me-2"></i>Nouvelle Consultation
+        </a>
+    </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Consultation</th>
-                <th>Médecin</th>
-                <th>Contenu</th>
-                <th>Créé le</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <!-- Ordonnances Grid -->
+    <div class="row g-4">
         {% for ordonnance in ordonnances %}
-            <tr>
-                <td>{{ ordonnance.id }}</td>
-                <td>{{ ordonnance.consultation.consultationDate|date('d/m/Y H:i') }}</td>
-                <td>{{ ordonnance.doctor ? ordonnance.doctor.user.username : 'Non assigné' }}</td>
-                <td>{{ ordonnance.content|slice(0, 50) }}...</td>
-                <td>{{ ordonnance.createdAt|date('d/m/Y H:i') }}</td>
-                <td>
-                    <a href="{{ path('app_ordonnance_show', {'id': ordonnance.id}) }}" class="btn btn-sm btn-primary">Voir</a>
-                </td>
-            </tr>
+            <div class="col-lg-6 col-xl-4">
+                <div class="card card-medical h-100 animate-fade-in">
+                    <div class="card-header bg-light border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-medical-primary text-white">
+                                <i class="fas fa-hashtag me-1"></i>{{ ordonnance.id }}
+                            </span>
+                            <span class="badge bg-info text-white">
+                                <i class="fas fa-calendar-check me-1"></i>Créé le {{ ordonnance.createdAt|date('d/m/Y') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Doctor Info -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user-md text-medical-primary me-2"></i>
+                                <strong class="text-dark">Médecin</strong>
+                            </div>
+                            <p class="mb-0 text-muted">
+                                {{ ordonnance.doctor ? ordonnance.doctor.user.username : 'Non assigné' }}
+                            </p>
+                        </div>
+
+                        <!-- Consultation Date -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-calendar-alt text-medical-primary me-2"></i>
+                                <strong class="text-dark">Consultation</strong>
+                            </div>
+                            <p class="mb-0 text-muted">
+                                {{ ordonnance.consultation.consultationDate|date('d/m/Y à H:i') }}
+                            </p>
+                        </div>
+
+                        <!-- Content Preview -->
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-file-prescription text-medical-primary me-2"></i>
+                                <strong class="text-dark">Prescription</strong>
+                            </div>
+                            <div class="bg-light p-3 rounded">
+                                <p class="mb-0 text-muted small">
+                                    {{ ordonnance.content|slice(0, 120) }}{% if ordonnance.content|length > 120 %}...{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-transparent border-0">
+                        <a href="{{ path('app_ordonnance_show', {'id': ordonnance.id}) }}"
+                           class="btn btn-outline-primary btn-sm w-100">
+                            <i class="fas fa-eye me-1"></i>Voir Ordonnance Complète
+                        </a>
+                    </div>
+                </div>
+            </div>
         {% else %}
-            <tr>
-                <td colspan="6">Aucune ordonnance trouvée.</td>
-            </tr>
+            <!-- Empty State -->
+            <div class="col-12">
+                <div class="card card-medical text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-prescription-bottle-alt fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted mb-3">Aucune ordonnance trouvée</h4>
+                        <p class="text-muted mb-4">
+                            Vous n'avez encore aucune ordonnance.
+                            Prenez rendez-vous avec un médecin pour obtenir vos prescriptions.
+                        </p>
+                        <a href="{{ path('app_consultation_new') }}" class="btn btn-medical">
+                            <i class="fas fa-stethoscope me-2"></i>Demander une Consultation
+                        </a>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 </div>
+
+<style>
+    .animate-fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card-medical:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(30, 144, 255, 0.15);
+    }
+
+    .btn-medical {
+        background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-medical:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.3);
+        color: white;
+    }
+</style>
 {% endblock %}

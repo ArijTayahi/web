@@ -66,8 +66,8 @@
             
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
                 <div>
-                    <h1 class="h2 fw-bold text-dark">Welcome Back, {{ app.user ? app.user.username : 'Patient' }}!</h1>
-                    <p class="text-muted">Here is your health overview for today.</p>
+                    <h1 class="h2 fw-bold text-dark">Bienvenue, {{ app.user ? app.user.username : 'Patient' }} !</h1>
+                    <p class="text-muted">Voici votre aperçu santé pour aujourd'hui.</p>
                 </div>
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <a href="{{ path('app_find_doctor') }}" class="btn btn-primary rounded-pill px-4 shadow-sm" style="background-color: #1E90FF; border: none;">
@@ -131,25 +131,25 @@
                     </div>
                 </div>
 
-                <!-- Notifications -->
+                <!-- Notifications Médicales -->
                 <div class="col-md-6 col-lg-4">
-                    <div class="card border-0 shadow-sm h-100 rounded-4 bg-primary text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%);">
+                    <div class="card-medical h-100 bg-medical-primary text-white position-relative overflow-hidden animate-fade-in" style="background: linear-gradient(135deg, #1E90FF 0%, #007bff 100%);">
                          <div class="card-body p-4 position-relative" style="z-index: 1;">
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <h5 class="card-title fw-bold mb-0">Notifications</h5>
-                                <span class="badge bg-white text-primary rounded-pill">1 New</span>
+                                <h5 class="card-title fw-bold mb-0"><i class="fas fa-bell me-2"></i>Notifications</h5>
+                                <span class="badge bg-white text-medical-primary rounded-pill shadow-sm">1 Nouveau</span>
                             </div>
-                            <div class="alert bg-white bg-opacity-25 border-0 text-white rounded-3 p-3 mb-0">
+                            <div class="bg-white bg-opacity-20 border-0 text-white rounded-3 p-3 mb-0 hover-lift">
                                 <div class="d-flex">
-                                    <i class="fas fa-file-medical-alt mt-1 me-3"></i>
+                                    <i class="fas fa-file-medical-alt mt-1 me-3 fs-5"></i>
                                     <div>
-                                        <h6 class="fw-bold mb-1">Blood Test Results</h6>
-                                        <p class="small mb-0 opacity-75">Your recent blood work results are now available.</p>
+                                        <h6 class="fw-bold mb-1">Résultats d'Analyses</h6>
+                                        <p class="small mb-0 opacity-90">Vos résultats d'analyses sanguines sont disponibles.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="position-absolute bg-white opacity-10 rounded-circle" style="width: 200px; height: 200px; bottom: -80px; left: -80px; opacity: 0.1;"></div>
+                        <div class="position-absolute bg-white opacity-10 rounded-circle" style="width: 200px; height: 200px; bottom: -80px; left: -80px;"></div>
                     </div>
                 </div>
 

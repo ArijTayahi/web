@@ -9,7 +9,7 @@ final class ProductFrontControllerTest extends WebTestCase
     public function testIndex(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/product/front');
+        $client->request('GET', '/products');
 
         self::assertResponseIsSuccessful();
     }
