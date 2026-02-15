@@ -48,6 +48,12 @@ class Consultation
     #[ORM\OneToMany(mappedBy: 'consultation', targetEntity: Ordonnance::class)]
     private Collection $ordonnances;
 
+    #[ORM\OneToOne(mappedBy: 'consultation', targetEntity: Paiement::class, cascade: ['persist', 'remove'])]
+    private ?Paiement $paiement = null;
+
+    #[ORM\OneToOne(mappedBy: 'consultation', targetEntity: Satisfaction::class, cascade: ['persist', 'remove'])]
+    private ?Satisfaction $satisfaction = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
@@ -183,5 +189,42 @@ class Consultation
         }
 
         return $this;
+    }
+
+    public function getPaiement(): ?Paiement
+    {
+        return $this->paiement;
+    }
+
+    public function setPaiement(?Paiement $paiement): self
+    {
+        if ($paiement !== null && $paiement->getConsultation() !== $this) {
+            $paiement->setConsultation($this);
+        }
+
+        $this->paiement = $paiement;
+
+        return $this;
+    }
+
+    public function getSatisfaction(): ?Satisfaction
+    {
+        return $this->satisfaction;
+    }
+
+    public function setSatisfaction(?Satisfaction $satisfaction): self
+    {
+        if ($satisfaction !== null && $satisfaction->getConsultation() !== $this) {
+            $satisfaction->setConsultation($this);
+        }
+
+        $this->satisfaction = $satisfaction;
+
+        return $this;
+    }
+
+    public function getOrdonnance(): ?Ordonnance
+    {
+        return $this->ordonnances->first() ?: null;
     }
 }

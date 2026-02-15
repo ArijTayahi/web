@@ -2,81 +2,57 @@
 
 namespace App\Controller;
 
-use App\Entity\Product;
-use App\Form\ProductType;
+use App\Repository\ProductCategoryRepository;
 use App\Repository\ProductRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/master-data/products')]
 class ProductController extends AbstractController
 {
-    #[Route('/', name: 'app_product_index', methods: ['GET'])]
-    public function index(ProductRepository $productRepository): Response
-    {
+    #[Route('/products', name: 'app_products', methods: ['GET'])]
+    public function index(
+        Request $request,
+        ProductRepository $productRepository,
+        ProductCategoryRepository $categoryRepository
+    ): Response {
+        $search = trim((string) $request->query->get('q'));
+        $categoryId = (int) $request->query->get('category');
+
+        $qb = $productRepository->createQueryBuilder('p')
+            ->where('p.isAvailable = true')
+            ->orderBy('p.name', 'ASC');
+
+        if ($search !== '') {
+            $qb->andWhere('p.name LIKE :q OR p.description LIKE :q')
+                ->setParameter('q', '%' . $search . '%');
+        }
+
+        if ($categoryId > 0) {
+            $qb->andWhere('p.category = :categoryId')
+                ->setParameter('categoryId', $categoryId);
+        }
+
+        $products = $qb->getQuery()->getResult();
+        $categories = $categoryRepository->findBy([], ['name' => 'ASC']);
+
         return $this->render('product/index.html.twig', [
-            'products' => $productRepository->findAll(),
+            'products' => $products,
+            'categories' => $categories,
+            'search' => $search,
+            'selectedCategory' => $categoryId,
         ]);
     }
 
-    #[Route('/new', name: 'app_product_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/cart', name: 'app_cart', methods: ['GET'])]
+    public function cart(): Response
     {
-        $product = new Product();
-        $form = $this->createForm(ProductType::class, $product);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($product);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('product/new.html.twig', [
-            'product' => $product,
-            'form' => $form,
+        // This is a placeholder for the shopping cart page.
+        // Logic for handling the cart session, adding/removing items, and checkout will go here.
+        return $this->render('product/cart.html.twig', [
+            'items' => [], // Placeholder for cart items
+            'total' => 0,  // Placeholder for cart total
         ]);
-    }
-
-    #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
-    public function show(Product $product): Response
-    {
-        return $this->render('product/show.html.twig', [
-            'product' => $product,
-        ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Product $product, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(ProductType::class, $product);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $product->setUpdatedAt(new \DateTimeImmutable());
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('product/edit.html.twig', [
-            'product' => $product,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_product_delete', methods: ['POST'])]
-    public function delete(Request $request, Product $product, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($product);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_product_index', [], Response::HTTP_SEE_OTHER);
     }
 }

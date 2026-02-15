@@ -1,21 +1,27 @@
-# TODO List for MedTime Homepage and Patient Dashboard Updates
+# MedTime - Tâches à Compléter
 
-## Homepage Modifications
-- [ ] Modify templates/home/index.html.twig to display only "Connexion" and "Créer un compte" buttons in a centered layout, removing the full landing page content.
+## 1. Modifier le Navbar (base.html.twig) pour le patient
+- [ ] Changer les liens pour patient:
+  - [ ] Prendre un Rendez-vous
+  - [ ] Produits médicale (e-commerce)
+  - [ ] Actualité médicale / Publications médecins (forums)
 
-## Patient Dashboard Updates
-- [ ] Add a top navbar to templates/dashboard/patient_dashboard.html.twig with buttons: Prendre un Rendez-vous, Produits médicaux, Actualités médicales ou Publications médecins.
-- [ ] Enhance the sidebar to show patient profile and sub-buttons under "Appointments" (RDV): all consultations, all prescriptions, cabinet appointment, online appointment, all invoices, evaluate doctor. Use collapsible sections or JavaScript for interactivity.
-- [ ] Implement availability checks for online appointments using Availability entity.
-- [ ] Integrate online payment for online consultations using Paiement entity.
-- [ ] Allow product purchases based on prescriptions, linking to Product entity.
-- [ ] Add evaluation feature after consultations using Satisfaction entity.
+## 2. Modifier la Sidebar Patient (patient_dashboard.html.twig)
+- [ ] Profil patient
+- [ ] Toutes les consultations
+- [ ] Toutes les ordonnances
+- [ ] RDV cabinet
+- [ ] RDV en ligne (avec vérification disponibilité)
+- [ ] Paiement en ligne
+- [ ] Toutes les factures
+- [ ] Évaluer les médecins après consultation
+- [ ] Acheter des produits selon ordonnance
 
-## Controller and Route Updates
-- [ ] Verify and create missing routes in controllers (e.g., RendezVousController, PaiementController) for new functionalities.
-- [ ] Ensure HomeController redirects logged-in users correctly.
-
-## Testing and Followup
-- [ ] Test availability checks, payments, evaluations, and product purchases.
-- [ ] Ensure responsive design for new navbar and sidebar.
-- [ ] Verify no changes to existing code; only additions as per requirements.
+## 3. Entités existantes (déjà implémentées)
+- Availability (disponibilités médecin) ✓
+- Satisfaction (évaluations) ✓
+- Facture (factures) ✓
+- Paiement (paiements) ✓
+- RendezVous (avec consultationType: CABINET/EN_LIGNE) ✓
+- Consultation ✓
+- Ordonnance ✓

@@ -28,7 +28,7 @@ final class PaiementController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        if ($consultation->getPatient()->getId() !== $user->getId()) {
+        if ($consultation->getPatient()->getUser()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -85,8 +85,8 @@ final class PaiementController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        if ($paiement->getPatient()->getId() !== $user->getId() 
-            && $paiement->getConsultation()->getMedecin()->getId() !== $user->getId()
+        if ($paiement->getPatient()->getId() !== $user->getId()
+            && $paiement->getConsultation()->getDoctor()?->getUser()->getId() !== $user->getId()
             && !in_array('ROLE_ADMIN', $user->getRoles())) {
             throw $this->createAccessDeniedException();
         }
@@ -103,8 +103,8 @@ final class PaiementController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        if ($facture->getPaiement()->getPatient()->getId() !== $user->getId() 
-            && $facture->getPaiement()->getConsultation()->getMedecin()->getId() !== $user->getId()
+        if ($facture->getPaiement()->getPatient()->getId() !== $user->getId()
+            && $facture->getPaiement()->getConsultation()->getDoctor()?->getUser()->getId() !== $user->getId()
             && !in_array('ROLE_ADMIN', $user->getRoles())) {
             throw $this->createAccessDeniedException();
         }
@@ -137,6 +137,8 @@ final class PaiementController extends AbstractController
         $facture = new Facture();
         $facture->setPaiement($paiement);
         $facture->setMontant($paiement->getMontant());
+        $facture->setDateEmission(new \DateTimeImmutable());
+        $facture->setNumeroFacture('FAC-' . date('YmdHis') . '-' . random_int(100, 999));
 
         if ($paiement->getConsultation()->getOrdonnance()) {
             $facture->setOrdonnance($paiement->getConsultation()->getOrdonnance());

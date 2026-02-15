@@ -77,18 +77,18 @@
                         <!-- PATIENT SECTION -->
                         {% if is_granted('ROLE_PATIENT') %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_consultation_new') }}">
-                                    ➕ Demander consultation
+                                <a class="nav-link" href="{{ path('app_patient_rdv_space') }}">
+                                    📅 Prendre un Rendez-vous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_consultation_index') }}">
-                                    📋 Mes consultations
+                                <a class="nav-link" href="{{ path('app_products') }}">
+                                    💊 Produits médicale
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_patient_consultations') }}">
-                                    💊 Mes ordonnances
+                                <a class="nav-link" href="{{ path('app_forum_index') }}">
+                                    📰 Publications medecins
                                 </a>
                             </li>
                         {% endif %}

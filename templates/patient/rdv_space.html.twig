@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Espace Rendez-vous Patient{% endblock %}
+
+{% block body %}
+<div class="container-fluid" style="background-color: #f3f6f9; min-height: 100vh;">
+    <div class="row">
+        {% include 'patient/_rdv_sidebar.html.twig' with {activeTab: activeTab} %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+            <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <div>
+                    <h1 class="h3 fw-bold mb-1">Prendre un rendez-vous</h1>
+                    <p class="text-muted mb-0">Cabinet ou en ligne selon disponibilites medecin.</p>
+                </div>
+            </div>
+
+            {% if activeTab == 'online' %}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Nouveau RDV en ligne</h5>
+                        <form method="post" action="{{ path('app_patient_rdv_online_book') }}" class="row g-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('book_online_rdv') }}">
+                            <div class="col-md-4">
+                                <label class="form-label">Medecin</label>
+                                <select name="doctor_id" class="form-select" required onchange="window.location='{{ path('app_patient_rdv_space', {tab: 'online'}) }}?doctor='+this.value">
+                                    <option value="">Choisir...</option>
+                                    {% for doctor in doctors %}
+                                        <option value="{{ doctor.user.id }}" {% if selectedDoctorId == doctor.user.id %}selected{% endif %}>
+                                            Dr. {{ doctor.user.username }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Date et heure</label>
+                                <input type="datetime-local" name="appointment_at" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Duree (min)</label>
+                                <input type="number" min="10" value="30" name="duration" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Motif</label>
+                                <textarea name="reason" class="form-control" rows="2" placeholder="Motif du rendez-vous"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">Reserver RDV en ligne</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3">Disponibilites du medecin selectionne</h6>
+                        {% if availabilities is empty %}
+                            <p class="text-muted mb-0">Aucune disponibilite trouvee pour ce medecin.</p>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Jour</th>
+                                            <th>Debut</th>
+                                            <th>Fin</th>
+                                            <th>Periode</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for availability in availabilities %}
+                                            <tr>
+                                                <td>{{ availability.dayOfWeek.value }}</td>
+                                                <td>{{ availability.startTime|date('H:i') }}</td>
+                                                <td>{{ availability.endTime|date('H:i') }}</td>
+                                                <td>
+                                                    {% if availability.startDate %}
+                                                        {{ availability.startDate|date('d/m/Y') }}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                    -
+                                                    {% if availability.endDate %}
+                                                        {{ availability.endDate|date('d/m/Y') }}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Nouveau RDV cabinet</h5>
+                        <form method="post" action="{{ path('app_patient_rdv_cabinet_book') }}" class="row g-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('book_cabinet_rdv') }}">
+                            <div class="col-md-4">
+                                <label class="form-label">Medecin</label>
+                                <select name="doctor_id" class="form-select" required>
+                                    <option value="">Choisir...</option>
+                                    {% for doctor in doctors %}
+                                        <option value="{{ doctor.user.id }}">Dr. {{ doctor.user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Date et heure</label>
+                                <input type="datetime-local" name="appointment_at" class="form-control" required>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Duree (min)</label>
+                                <input type="number" min="10" value="30" name="duration" class="form-control" required>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label">Motif</label>
+                                <textarea name="reason" class="form-control" rows="2" placeholder="Motif du rendez-vous"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">Reserver RDV cabinet</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Tous mes rendez-vous</h5>
+                    {% if rendezVous is empty %}
+                        <p class="text-muted mb-0">Aucun rendez-vous pour le moment.</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Medecin</th>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Statut</th>
+                                        <th>Paiement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for rdv in rendezVous %}
+                                        <tr>
+                                            <td>Dr. {{ rdv.doctor.username }}</td>
+                                            <td>{{ rdv.appointmentDateTime|date('d/m/Y H:i') }}</td>
+                                            <td>{{ rdv.consultationType.value == 'ONLINE' ? 'En ligne' : 'Cabinet' }}</td>
+                                            <td>{{ rdv.status.value }}</td>
+                                            <td>
+                                                {% if rdv.consultationType.value == 'ONLINE' %}
+                                                    <form method="post" action="{{ path('app_patient_rdv_online_pay', {id: rdv.id}) }}" class="d-inline">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('pay_online_rdv_' ~ rdv.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill">Payer</button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

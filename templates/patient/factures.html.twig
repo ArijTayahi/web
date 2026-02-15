@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Factures{% endblock %}
+
+{% block body %}
+<div class="container-fluid" style="background-color: #f3f6f9; min-height: 100vh;">
+    <div class="row">
+        {% include 'patient/_rdv_sidebar.html.twig' with {activeTab: 'factures'} %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+            <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h3 fw-bold mb-0">Mes factures</h1>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    {% if factures is empty %}
+                        <p class="text-muted mb-0">Aucune facture disponible.</p>
+                    {% else %}
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Numero</th>
+                                        <th>Date</th>
+                                        <th>Montant</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for facture in factures %}
+                                        <tr>
+                                            <td>{{ facture.numeroFacture }}</td>
+                                            <td>{{ facture.dateEmission|date('d/m/Y H:i') }}</td>
+                                            <td>{{ facture.montant }} TND</td>
+                                            <td>
+                                                <a href="{{ path('app_facture_pdf', {id: facture.id}) }}" class="btn btn-sm btn-outline-primary rounded-pill">
+                                                    PDF
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

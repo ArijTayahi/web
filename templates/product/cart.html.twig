@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier - MedTime{% endblock %}
+
+{% block body %}
+<div class="container my-5" style="margin-top: 80px !important;">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+        <h1 class="h2 fw-bold">Mon Panier</h1>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+            {% if items is empty %}
+                <div class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Votre panier est vide.</h4>
+                    <p>Parcourez nos produits pour commencer vos achats.</p>
+                    <a href="{{ path('app_products') }}" class="btn btn-primary rounded-pill mt-3">
+                        <i class="fas fa-pills me-2"></i> Voir les produits
+                    </a>
+                </div>
+            {% else %}
+                {# Cart items will be displayed here in a future implementation #}
+                <p>Affichage des articles du panier...</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

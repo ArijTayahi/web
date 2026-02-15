@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Patient - MedTime{% endblock %}
+
+{% block body %}
+<div class="container-fluid" style="background-color: #f3f6f9; min-height: 100vh;">
+    <div class="row">
+        {% include 'patient/_rdv_sidebar.html.twig' with {activeTab: 'profile'} %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2 fw-bold">Bienvenue, {{ app.user.username }}</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{{ path('app_patient_rdv_space', {'tab': 'online'}) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-video me-1"></i> Nouveau RDV En ligne
+                        </a>
+                        <a href="{{ path('app_patient_rdv_space', {'tab': 'cabinet'}) }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-hospital me-1"></i> Nouveau RDV Cabinet
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="mb-3 text-primary"><i class="fas fa-calendar-check fa-3x"></i></div>
+                            <h5 class="fw-bold">Mes Rendez-vous</h5>
+                            <p class="text-muted small">Gérez vos consultations à venir et passées.</p>
+                            <a href="{{ path('app_patient_rdv_space') }}" class="btn btn-primary rounded-pill px-4">Voir Agenda</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="mb-3 text-info"><i class="fas fa-file-prescription fa-3x"></i></div>
+                            <h5 class="fw-bold">Ordonnances</h5>
+                            <p class="text-muted small">Consultez vos prescriptions médicales.</p>
+                            <a href="{{ path('app_patient_ordonnances') }}" class="btn btn-info text-white rounded-pill px-4">Voir</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="mb-3 text-success"><i class="fas fa-pills fa-3x"></i></div>
+                            <h5 class="fw-bold">Pharmacie</h5>
+                            <p class="text-muted small">Commandez vos médicaments en ligne.</p>
+                            <a href="{{ path('app_products') }}" class="btn btn-success rounded-pill px-4">Acheter</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 h-100">
+                        <div class="card-body p-4 text-center">
+                            <div class="mb-3 text-warning"><i class="fas fa-star fa-3x"></i></div>
+                            <h5 class="fw-bold">Avis</h5>
+                            <p class="text-muted small">Donnez votre avis sur vos consultations.</p>
+                            <a href="{{ path('app_patient_evaluations') }}" class="btn btn-warning text-white rounded-pill px-4">Évaluer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+    .hover-bg-light:hover { background-color: #f8f9fa !important; }
+    .bg-soft-primary { background-color: rgba(30, 144, 255, 0.1); }
+</style>
+{% endblock %}

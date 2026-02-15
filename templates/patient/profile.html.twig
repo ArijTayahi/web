@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - MedTime{% endblock %}
+
+{% block body %}
+<div class="container-fluid" style="background-color: #f3f6f9; min-height: 100vh;">
+    <div class="row">
+        {% include 'patient/_rdv_sidebar.html.twig' with {activeTab: 'profile'} %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" style="margin-top: 80px;">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+                <h1 class="h2 fw-bold">Mon Profil</h1>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4 mb-md-0">
+                            <div class="avatar-placeholder mb-3 text-primary">
+                                <i class="fas fa-user-circle fa-8x"></i>
+                            </div>
+                            <h4 class="fw-bold">{{ app.user.username }}</h4>
+                            <span class="badge bg-primary rounded-pill">Patient</span>
+                        </div>
+                        <div class="col-md-8">
+                            <h5 class="fw-bold mb-3 border-bottom pb-2">Informations Personnelles</h5>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold text-muted">Nom d'utilisateur</div>
+                                <div class="col-sm-8">{{ app.user.username }}</div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold text-muted">Email</div>
+                                <div class="col-sm-8">{{ app.user.email }}</div>
+                            </div>
+
+                            {% if app.user.patient %}
+                                <div class="row mb-3">
+                                    <div class="col-sm-4 fw-bold text-muted">Région</div>
+                                    <div class="col-sm-8">{{ app.user.patient.region }}</div>
+                                </div>
+                            {% endif %}
+
+                            <div class="mt-4">
+                                <button class="btn btn-outline-primary rounded-pill">
+                                    <i class="fas fa-edit me-2"></i> Modifier mes informations
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

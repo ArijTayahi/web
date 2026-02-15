@@ -44,11 +44,11 @@ class RendezVous
     #[ORM\Column(nullable: true)]
     private ?float $cancellationRisk = null;
 
-    #[ORM\ManyToOne(inversedBy: 'rendezVousAsDoctor')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $doctor = null;
 
-    #[ORM\ManyToOne(inversedBy: 'rendezVousAsPatient')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $patient = null;
 
